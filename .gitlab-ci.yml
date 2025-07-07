@@ -110,6 +110,35 @@ scan:
   only:
     - main
 
+maven-dependency-scan:
+  stage: scan
+  image: maven:3.9-eclipse-temurin-17
+  script:
+    - mvn -f todo-api/pom.xml -B org.owasp:dependency-check-maven:check -Dformat=JSON -DoutputDirectory=odc-maven
+  artifacts:
+    paths:
+      - odc-maven
+  dependencies:
+    - build
+  only:
+    - main
+
+npm-dependency-scan:
+  stage: scan
+  image: node:18-alpine
+  script:
+    - cd todo-client
+    - npm install --legacy-peer-deps
+    - npm audit --audit-level=high --json > ../npm-audit.json
+    - cd ..
+  artifacts:
+    paths:
+      - npm-audit.json
+  dependencies:
+    - build
+  only:
+    - main
+
 deploy:
   stage: deploy
   script:
