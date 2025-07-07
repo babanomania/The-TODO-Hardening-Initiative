@@ -151,7 +151,6 @@ After ArgoCD syncs the application, the TODO app will be accessible via the `tod
 **Warning:** The default passwords and `/debug-shell` endpoint are intentionally insecure. Do not expose this environment to untrusted networks.
 
 
-
 ## Runtime Security with Falco (Phase 5)
 
 1. **Deploy Falco using ArgoCD**
