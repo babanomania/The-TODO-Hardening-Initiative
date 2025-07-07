@@ -111,57 +111,8 @@ The application—a basic TODO list app using React (frontend) and Spring Boot (
 | Observability & incident handling | Loki, Promtail, Grafana         |
 | Secure GitOps deployment          | ArgoCD + signature verification |
 
-## Running GitLab locally
-
-Follow the steps in [GITLAB_SETUP.md](GITLAB_SETUP.md) to start GitLab CE using Podman.
-The guide explains how to copy `.env.example` to `.env`, run `. ./.env` to load
-the variables, and launch the container with those values.
-
----
-
-## Setup Instructions (Phase 1)
-
-These steps reproduce the baseline insecure deployment. They assume you have Podman installed and access to a Kubernetes cluster.
-
-1. **Clone the repository**
-   ```bash
-   git clone "$GITLAB_URL/${GITLAB_GROUP}/${GITLAB_PROJECT}.git"
-   cd "$GITLAB_PROJECT"
-   ```
-2. **Install prerequisites**
-   - Node.js and npm
-   - Java 17 JDK and Maven
-   - GitLab CLI (`glab`)
-   - `kubectl` for Kubernetes access
-3. **Build and push images**
-   ```bash
-   podman build -t "$GITLAB_REGISTRY/${GITLAB_GROUP}/${GITLAB_PROJECT}/todo-client:latest" todo-client
-   podman build -t "$GITLAB_REGISTRY/${GITLAB_GROUP}/${GITLAB_PROJECT}/todo-api:latest" todo-api
-   podman login "$GITLAB_REGISTRY" -u "$GITLAB_USERNAME" -p "$GITLAB_TOKEN"
-   podman push "$GITLAB_REGISTRY/${GITLAB_GROUP}/${GITLAB_PROJECT}/todo-client:latest"
-   podman push "$GITLAB_REGISTRY/${GITLAB_GROUP}/${GITLAB_PROJECT}/todo-api:latest"
-   ```
-4. **Deploy PostgreSQL, API and client**
-   ```bash
-   kubectl apply -f k8s/postgres-deployment.yaml
-   kubectl apply -f k8s/todo-api-deployment.yaml
-   kubectl apply -f k8s/todo-client-deployment.yaml
-   ```
-5. **Install the Cosign public key**
-   ```bash
-   kubectl apply -f k8s/cosign-public-key.yaml
-   ```
-
-6. **Set up ArgoCD** (once per cluster)
-   ```bash
-   kubectl create namespace argocd
-   kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-   kubectl apply -f k8s/argo-app.yaml
-   ```
-
-After ArgoCD syncs the application, the TODO app will be accessible via the `todo-client` service.
-
-**Warning:** The default passwords and `/debug-shell` endpoint are intentionally insecure. Do not expose this environment to untrusted networks.
+For instructions on running GitLab locally and deploying the application, see
+[SETUP.md](SETUP.md).
 
 
 ## SBOM and Dependency Scanning (Phase 2)
@@ -260,8 +211,9 @@ Integrate with Promtail/Loki or Slack for centralized alerting.
 ## Supply Chain Attack Simulation (Bonus Phase)
 
 1. **Introduce a suspicious dependency**
-   - The frontend `package.json` references an `evil-package` hosted at a mock URL.
-   - The backend `pom.xml` includes `com.malicious:evil-lib:1.0.0`.
+   - Follow [malicious/README.md](malicious/README.md) to build and manually install
+     the `evil-package` and `evil-lib` artifacts. The base project omits these
+     dependencies to keep the scenario realistic.
 
 2. **Generate new SBOMs and compare**
    - The CI pipeline stores SBOMs under `sboms/` and fails if they change.
