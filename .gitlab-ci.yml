@@ -3,6 +3,7 @@ stages:
   - sign
   - sbom
   - scan
+  - policy
   - deploy
 
 variables:
@@ -39,6 +40,22 @@ sign:
       - cosign.pub
   dependencies:
     - build
+  only:
+    - main
+
+checkov:
+  stage: policy
+  image: bridgecrew/checkov
+  script:
+    - checkov -d k8s --quiet
+  only:
+    - main
+
+conftest:
+  stage: policy
+  image: openpolicyagent/conftest
+  script:
+    - conftest test k8s
   only:
     - main
 
