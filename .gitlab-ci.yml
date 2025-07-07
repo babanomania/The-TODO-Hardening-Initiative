@@ -65,14 +65,22 @@ sbom:
   stage: sbom
   image: docker.io/library/golang:1.20-alpine
   script:
-    - apk add --no-cache curl podman
+    - apk add --no-cache curl podman git
     - curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
-    - syft $REGISTRY/todo-client:latest -o cyclonedx-json > sbom-client.json
-    - syft $REGISTRY/todo-api:latest -o cyclonedx-json > sbom-api.json
+    - mkdir -p sboms
+    - syft $REGISTRY/todo-client:latest -o cyclonedx-json > sboms/sbom-client.json
+    - syft $REGISTRY/todo-api:latest -o cyclonedx-json > sboms/sbom-api.json
+    - ./scripts/check-sbom-diff.sh || true
+    - git config user.email "ci@example.com"
+    - git config user.name "CI Bot"
+    - git checkout $CI_COMMIT_BRANCH
+    - git add sboms
+    - git commit -m "Update SBOMs" || true
+    - git push
   artifacts:
     paths:
-      - sbom-client.json
-      - sbom-api.json
+      - sboms/sbom-client.json
+      - sboms/sbom-api.json
   dependencies:
     - build
   only:

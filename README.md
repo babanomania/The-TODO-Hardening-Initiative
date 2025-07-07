@@ -183,4 +183,19 @@ Integrate with Promtail/Loki or Slack for centralized alerting.
 
 3. **Review `INCIDENT_REPORT.md`** for an example timeline of detection and response steps.
 
+## Supply Chain Attack Simulation (Bonus Phase)
+
+1. **Introduce a suspicious dependency**
+   - The frontend `package.json` references an `evil-package` hosted at a mock URL.
+   - The backend `pom.xml` includes `com.malicious:evil-lib:1.0.0`.
+
+2. **Generate new SBOMs and compare**
+   - The CI pipeline stores SBOMs under `sboms/` and fails if they change.
+   - Review the pipeline output to spot unexpected dependencies.
+
+3. **Run vulnerability scans**
+   - Grype and Dependency‑Check jobs will flag the malicious packages.
+
+4. **Remove or replace the bad dependencies** once detected to restore a secure state.
+
 
