@@ -14,13 +14,6 @@ spec:
       containers:
         - name: todo-api
           image: registry.gitlab.com/REPLACE_GROUP/REPLACE_PROJECT/todo-api:latest
-          env:
-            - name: SPRING_DATASOURCE_URL
-              value: jdbc:postgresql://postgres:5432/todo
-            - name: SPRING_DATASOURCE_USERNAME
-              value: todo
-            - name: SPRING_DATASOURCE_PASSWORD
-              value: insecurepassword
           ports:
             - containerPort: 8080
 ---
