@@ -156,6 +156,7 @@ After ArgoCD syncs the application, the TODO app will be accessible via the `tod
 
 **Warning:** The default passwords and `/debug-shell` endpoint are intentionally insecure. Do not expose this environment to untrusted networks.
 
+
 ## SBOM and Dependency Scanning (Phase 2)
 
 1. **Generate SBOMs using Syft**
@@ -263,5 +264,4 @@ Integrate with Promtail/Loki or Slack for centralized alerting.
    - Grype and Dependency‑Check jobs will flag the malicious packages.
 
 4. **Remove or replace the bad dependencies** once detected to restore a secure state.
-
 
