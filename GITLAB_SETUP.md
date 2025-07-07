@@ -69,45 +69,6 @@ The default username is `root`.
 
 ## 4. Set Up Personal Access Token
 
-Apologies for any confusion earlier. To create a Personal Access Token (PAT) in GitLab, follow these steps:
-
-### 🔑 How to Create a Personal Access Token in GitLab
-
-1. **Log in to your GitLab instance** (e.g., `http://localhost` or your configured `$GITLAB_URL`).
-
-2. **Access your profile settings**:
-
-   * In the top-right corner, click on your avatar.
-   * Select **Edit profile** from the dropdown menu.([ac.sugon.com][1])
-
-3. **Navigate to the Access Tokens section**:
-
-   * In the left sidebar, click on **Access Tokens**.([ac.sugon.com][1])
-
-4. **Create a new token**:
-
-   * Enter a **name** for your token (e.g., `local-dev-token`).
-   * Optionally, set an **expiration date**.
-   * Select the desired **scopes**:
-
-     * `api` – Full access to the API, including all groups and projects.
-     * `write_repository` – Allows pushing to repositories over HTTPS.
-   * Click **Create personal access token**.([ac.sugon.com][1], [gitlab.crewmeister.com][2])
-
-5. **Save your token**:
-
-   * After creation, GitLab will display your new token.
-   * **Copy and store it securely**, as you won't be able to view it again.([geeksforgeeks.org][3])
-
-For more detailed information, refer to the GitLab documentation: ([docs.gitlab.com][4]).
-
-### 📝 Updated README Section
-
-You can update your `README.md` to include the token setup as follows:
-
-```markdown
-## 4. Set Up Personal Access Token
-
 To authenticate Git operations over HTTPS, create a Personal Access Token (PAT):
 
 1. Log in to your GitLab instance.
