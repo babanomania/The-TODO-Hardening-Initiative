@@ -11,6 +11,13 @@ spec:
       labels:
         app: todo-api
     spec:
+      initContainers:
+        - name: verify-image
+          image: ghcr.io/sigstore/cosign:v2.2.0
+          command: ["cosign", "verify", "--key=/cosign/cosign.pub", "registry.gitlab.com/REPLACE_GROUP/REPLACE_PROJECT/todo-api:latest"]
+          volumeMounts:
+            - name: cosign-key
+              mountPath: /cosign
       containers:
         - name: todo-api
           image: registry.gitlab.com/REPLACE_GROUP/REPLACE_PROJECT/todo-api:latest
@@ -26,6 +33,10 @@ spec:
                   key: POSTGRES_PASSWORD
           ports:
             - containerPort: 8080
+      volumes:
+        - name: cosign-key
+          configMap:
+            name: cosign-public-key
 ---
 apiVersion: v1
 kind: Service

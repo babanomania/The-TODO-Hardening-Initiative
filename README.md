@@ -43,6 +43,7 @@ The application—a basic TODO list app using React (frontend) and Spring Boot (
 * All Podman-built images are signed using **Cosign**.
 * Signature metadata is stored in a **Rekor** transparency log.
 * ArgoCD performs signature verification using `cosign verify` prior to deployment.
+* Each Deployment runs a Cosign init container that verifies the image signature using a ConfigMap containing the public key.
 
 ### Provenance and Supply Chain Attestation
 
@@ -139,7 +140,12 @@ These steps reproduce the baseline insecure deployment. They assume you have Pod
    kubectl apply -f k8s/todo-api-deployment.yaml
    kubectl apply -f k8s/todo-client-deployment.yaml
    ```
-5. **Set up ArgoCD** (once per cluster)
+5. **Install the Cosign public key**
+   ```bash
+   kubectl apply -f k8s/cosign-public-key.yaml
+   ```
+
+6. **Set up ArgoCD** (once per cluster)
    ```bash
    kubectl create namespace argocd
    kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
