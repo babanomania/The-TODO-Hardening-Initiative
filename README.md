@@ -151,3 +151,18 @@ After ArgoCD syncs the application, the TODO app will be accessible via the `tod
 **Warning:** The default passwords and `/debug-shell` endpoint are intentionally insecure. Do not expose this environment to untrusted networks.
 
 
+## Runtime Security with Falco (Phase 5)
+
+1. **Deploy Falco using ArgoCD**
+   ```bash
+   kubectl apply -f k8s/falco-daemonset.yaml
+   kubectl apply -f k8s/falco-rules.yaml
+   ```
+   These manifests install the Falco daemon on each node and load custom rules.
+
+2. **Check Falco alerts**
+   ```bash
+   kubectl logs -n falco -l app=falco
+   ```
+   Integrate with Promtail/Loki or Slack for centralized alerting.
+
