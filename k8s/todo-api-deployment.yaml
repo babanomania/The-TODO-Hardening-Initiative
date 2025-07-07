@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-api
+spec:
+  selector:
+    matchLabels:
+      app: todo-api
+  template:
+    metadata:
+      labels:
+        app: todo-api
+    spec:
+      containers:
+        - name: todo-api
+          image: registry.gitlab.com/REPLACE_GROUP/REPLACE_PROJECT/todo-api:latest
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: todo-api
+spec:
+  selector:
+    app: todo-api
+  ports:
+    - port: 8080
