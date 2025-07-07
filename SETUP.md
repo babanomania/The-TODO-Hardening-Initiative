@@ -48,9 +48,5 @@ These steps reproduce the baseline insecure deployment. They assume you have Pod
    ```
 
 After ArgoCD syncs the application, the TODO app will be accessible via the `todo-client` service.
+**Warning:** The default passwords and `/debug-shell` endpoint are intentionally insecure. Do not expose this environment to untrusted networks.
 
-**Warning:** The default passwords are intentionally insecure. Do not expose this environment to untrusted networks.
-
-To experiment with the remote shell backdoor, follow
-[malicious/README.md](malicious/README.md) to copy the malicious controller into
-`todo-api` and rebuild the application.
