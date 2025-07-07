@@ -117,3 +117,60 @@ To prepare your GitLab instance for pushing this codebase:
 3. GitLab will automatically run the pipeline defined in `.gitlab-ci.yml`.
 
 After the initial pipeline completes, you can continue using GitLab for CI/CD and container registry hosting.
+
+## 7. GitLab Runner Setup
+
+To enable CI/CD for this project, you need to register a GitLab Runner. You can either run it via Podman or install it locally on your Mac.
+
+### Option 1: Run GitLab Runner with Podman (Containerized)
+
+Recommended for isolated builds or headless CI setups
+
+```bash
+# Create a volume for runner config
+podman volume create gitlab-runner-config
+
+# Run the runner in a container
+podman run -d --name gitlab-runner --restart always \
+  -v gitlab-runner-config:/etc/gitlab-runner \
+  -v /var/run/podman/podman.sock:/var/run/docker.sock \
+  gitlab/gitlab-runner:latest
+
+# Register the runner
+podman exec -it gitlab-runner gitlab-runner register \
+  --non-interactive \
+  --url "$GITLAB_URL" \
+  --registration-token "$GITLAB_TOKEN" \
+  --executor "docker" \
+  --docker-image alpine:latest \
+  --description "Podman Runner" \
+  --tag-list "podman,ci" \
+  --run-untagged="true" \
+  --locked="false"
+```
+
+The container shares the host's Podman socket for Docker-compatible builds.
+
+---
+
+### Option 2: Install GitLab Runner Locally on macOS
+
+Useful for local development or debugging builds
+
+```bash
+# Install GitLab Runner via Homebrew
+brew install gitlab-runner
+
+# Start the runner as a service
+brew services start gitlab-runner
+
+# Register the runner (interactive)
+gitlab-runner register
+```
+
+During registration, you'll be asked for:
+
+* **GitLab URL** (e.g., `http://localhost:8929/`)
+* **Registration Token** (found in GitLab UI: Admin → Runners)
+* **Executor type** (`shell`, `docker`, etc.)
+* **Runner Tags** (e.g., `mac,local`)
