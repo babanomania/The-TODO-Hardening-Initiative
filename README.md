@@ -109,6 +109,16 @@ The application—a basic TODO list app using React (frontend) and Spring Boot (
 | Observability & incident handling | Loki, Promtail, Grafana         |
 | Secure GitOps deployment          | ArgoCD + signature verification |
 
+## Running GitLab locally with Podman
+
+To keep the CI/CD environment self-contained, you can launch GitLab Community Edition in a container using the helper script:
+
+```bash
+./scripts/start-gitlab.sh
+```
+
+Set `GITLAB_HOSTNAME`, `HTTP_PORT`, or `SSH_PORT` to customize the instance. Use your chosen URL when following the steps below.
+
 
 ---
 
