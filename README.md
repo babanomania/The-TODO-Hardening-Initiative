@@ -115,3 +115,4 @@ For instructions on running GitLab locally, deploying the application, and all
 subsequent hardening steps (SBOM generation, dependency scanning, image signing,
 runtime security and more), see [SETUP.md](SETUP.md).
 
+
