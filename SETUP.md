@@ -48,5 +48,5 @@ These steps reproduce the baseline insecure deployment. They assume you have Pod
    ```
 
 After ArgoCD syncs the application, the TODO app will be accessible via the `todo-client` service.
-
 **Warning:** The default passwords and `/debug-shell` endpoint are intentionally insecure. Do not expose this environment to untrusted networks.
+
