@@ -1,10 +1,10 @@
 # The TODO Hardening Initiative
 
-*The TODO Hardening Initiative* is an open-source learning project designed to simulate and defend against SolarWinds-style software supply chain attacks by applying progressive hardening practices to a simple web application.
+*The TODO Hardening Initiative* is a hands-on DevSecOps lab environment disguised as a TODO app. Designed in response to lessons learned from the SolarWinds supply chain compromise, this project doesn’t just showcase what can go wrong in modern CI/CD pipelines—it demonstrates how to prevent it.
 
-The application—a basic TODO list app using React (frontend) and Spring Boot (backend)—is incrementally secured using a suite of open-source DevSecOps tools. The initiative focuses on real-world, reproducible steps for CI/CD hardening, artifact signing, SBOM generation, runtime anomaly detection, and secure GitOps delivery, all running on Podman.
+Built around a deliberately minimal stack (React + Spring Boot), the initiative evolves that app into a hardened software delivery system by implementing concrete, real-world defenses at every layer of the lifecycle. From source to running containers, from commit to deploy, every step is scrutinized, locked down, signed, scanned, and monitored—using only open-source tools and infrastructure.
 
----
+This project assumes you’ve heard about supply chain attacks. Here, you’ll build the muscle memory to stop them.
 
 ## Project Overview
 
@@ -23,8 +23,6 @@ The application—a basic TODO list app using React (frontend) and Spring Boot (
 * Apply secure-by-design practices using only open-source tools.
 * Transition from trust-based to verifiable software delivery.
 * Teach real-world DevSecOps concepts through hands-on implementation.
-
----
 
 ## Hardening Features Implemented
 
@@ -45,7 +43,7 @@ The application—a basic TODO list app using React (frontend) and Spring Boot (
 * All Podman-built images are signed using **Cosign**.
 * Signature metadata is stored in a **Rekor** transparency log.
 * ArgoCD performs signature verification using `cosign verify` prior to deployment.
-* Each Deployment runs a Cosign init container that verifies the image signature using a ConfigMap containing the public key.
+* Each deployment runs a Cosign init container that verifies the image signature using a ConfigMap containing the public key.
 
 ### Provenance and Supply Chain Attestation
 
@@ -95,8 +93,6 @@ The application—a basic TODO list app using React (frontend) and Spring Boot (
   * Grype scans
   * GitLab CI policy gates for known CVEs or unsigned artifacts
 
----
-
 ## Skills You'll Learn
 
 | Security Practice                 | Tooling Applied                 |
@@ -111,15 +107,19 @@ The application—a basic TODO list app using React (frontend) and Spring Boot (
 | Observability & incident handling | Loki, Promtail, Grafana         |
 | Secure GitOps deployment          | ArgoCD + signature verification |
 
-For instructions on running GitLab locally, deploying the application, and all
-subsequent hardening steps (SBOM generation, dependency scanning, image signing,
-runtime security and more), see [SETUP.md](SETUP.md).
+## Getting Started
 
-The repository also demonstrates four attack scenarios: injecting an npm
-package, injecting a Maven library, installing a remote shell backdoor, and
-leaking passwords. Detailed steps for each can be found in
-[malicious/README.md](malicious/README.md).
-When trying these simulations, always create a new Git branch to keep the `main`
-branch clean.
+For detailed setup instructions including how to run GitLab locally, configure ArgoCD, bootstrap Kubernetes manifests, and enable each security layer step-by-step, see:
+ [SETUP.md](./SETUP.md)
 
+## Simulating Attacks
 
+This project includes a set of predefined supply chain attack scenarios, such as:
+
+* Injecting a malicious npm package
+* Injecting a compromised Maven dependency
+* Installing a remote shell backdoor in the Spring Boot API
+* Leaking secrets via outbound traffic
+
+To safely experiment with these scenarios, switch to a separate Git branch and follow the guide here:
+[malicious/README.md](./malicious/README.md)
