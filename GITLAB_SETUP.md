@@ -81,7 +81,6 @@ To authenticate Git operations over HTTPS, create a Personal Access Token (PAT):
 6. **Copy and save the token securely**; it won't be shown again.
 
 Use this token as your password when performing Git operations over HTTPS.
-```
 
 When pushing code, Git will prompt for credentials:
 
@@ -91,7 +90,19 @@ git push gitlab main
 
 Enter `root` as the username and your newly created PAT as the password.
 
-## 5. Import this project
+
+## 5. Create Group and Project
+To prepare your GitLab instance for pushing this codebase:
+
+1. Log in to GitLab at `$GITLAB_URL`
+
+2. Navigate to `Groups → Your Groups → New Group` and create a group using the name set in `.env` as `$GITLAB_GROUP`
+
+3. After the group is created, click New Project inside that group.
+
+4. Use the value of `$GITLAB_PROJECT` from `.env` as the project name.
+
+## 6. Import this project
 
 1. Create a new group `$GITLAB_GROUP` and project `$GITLAB_PROJECT` in your GitLab instance.
 
