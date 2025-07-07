@@ -20,7 +20,10 @@ spec:
             - name: SPRING_DATASOURCE_USERNAME
               value: todo
             - name: SPRING_DATASOURCE_PASSWORD
-              value: insecurepassword
+              valueFrom:
+                secretKeyRef:
+                  name: pg-password
+                  key: POSTGRES_PASSWORD
           ports:
             - containerPort: 8080
 ---

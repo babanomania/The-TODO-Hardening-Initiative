@@ -2,10 +2,14 @@ stages:
   - build
   - sbom
   - scan
+  - sign
+  - sbom
+  - scan
+  - policy
   - deploy
 
 variables:
-  REGISTRY: registry.gitlab.com/REPLACE_GROUP/REPLACE_PROJECT
+  REGISTRY: registry.gitlab.com/$CI_PROJECT_PATH
 
 build:
   stage: build
@@ -17,6 +21,43 @@ build:
     - podman login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - podman push $REGISTRY/todo-client:latest
     - podman push $REGISTRY/todo-api:latest
+  only:
+    - main
+
+sign:
+  stage: sign
+  image: docker.io/library/golang:1.20-alpine
+  script:
+    - apk add --no-cache curl podman
+    - curl -LO https://github.com/sigstore/cosign/releases/download/v2.2.0/cosign-linux-amd64
+    - chmod +x cosign-linux-amd64
+    - COSIGN_PASSWORD="" ./cosign-linux-amd64 generate-key-pair
+    - podman login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - COSIGN_PASSWORD="" ./cosign-linux-amd64 sign --key cosign.key -y $REGISTRY/todo-client:latest
+    - COSIGN_PASSWORD="" ./cosign-linux-amd64 sign --key cosign.key -y $REGISTRY/todo-api:latest
+    - COSIGN_PASSWORD="" ./cosign-linux-amd64 verify --key cosign.pub $REGISTRY/todo-client:latest
+    - COSIGN_PASSWORD="" ./cosign-linux-amd64 verify --key cosign.pub $REGISTRY/todo-api:latest
+  artifacts:
+    paths:
+      - cosign.pub
+  dependencies:
+    - build
+  only:
+    - main
+
+checkov:
+  stage: policy
+  image: bridgecrew/checkov
+  script:
+    - checkov -d k8s --quiet
+  only:
+    - main
+
+conftest:
+  stage: policy
+  image: openpolicyagent/conftest
+  script:
+    - conftest test k8s
   only:
     - main
 
@@ -67,6 +108,7 @@ deploy:
     - git config user.email "ci@example.com"
     - git config user.name "CI Bot"
     - git checkout $CI_COMMIT_BRANCH
+    - sed -i "s|REPLACE_GROUP/REPLACE_PROJECT|$CI_PROJECT_PATH|g" k8s/*.yaml
     - git add k8s/
     - git commit -m "Update k8s manifests" || true
     - git push
