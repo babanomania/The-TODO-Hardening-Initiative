@@ -36,6 +36,8 @@ The application—a basic TODO list app using React (frontend) and Spring Boot (
 ### Vulnerability Scanning
 
 * All application and base image dependencies are scanned for CVEs using **Grype** and **OWASP Dependency-Check**.
+* Maven dependencies are additionally checked with the OWASP Dependency-Check Maven plugin.
+* npm packages are audited with `npm audit` to detect published advisories.
 * CI pipelines are configured to fail if critical vulnerabilities are found.
 
 ### Container Image Signing and Verification
