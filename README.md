@@ -151,6 +151,7 @@ After ArgoCD syncs the application, the TODO app will be accessible via the `tod
 **Warning:** The default passwords and `/debug-shell` endpoint are intentionally insecure. Do not expose this environment to untrusted networks.
 
 
+
 ## Runtime Security with Falco (Phase 5)
 
 1. **Deploy Falco using ArgoCD**
@@ -164,5 +165,22 @@ After ArgoCD syncs the application, the TODO app will be accessible via the `tod
    ```bash
    kubectl logs -n falco -l app=falco
    ```
-   Integrate with Promtail/Loki or Slack for centralized alerting.
+Integrate with Promtail/Loki or Slack for centralized alerting.
+
+## Simulated Incident and Detection (Phase 6)
+
+1. **Deploy Loki, Promtail and Grafana**
+   ```bash
+   kubectl apply -f k8s/loki-stack.yaml
+   ```
+   This stack collects pod logs and provides a Grafana dashboard at the `grafana` service.
+
+2. **Trigger the `/leak` endpoint**
+   ```bash
+   curl http://<todo-api-service>/leak
+   ```
+   Falco should detect suspicious file access while logs appear in Grafana.
+
+3. **Review `INCIDENT_REPORT.md`** for an example timeline of detection and response steps.
+
 
