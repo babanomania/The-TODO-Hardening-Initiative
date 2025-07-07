@@ -115,4 +115,9 @@ For instructions on running GitLab locally, deploying the application, and all
 subsequent hardening steps (SBOM generation, dependency scanning, image signing,
 runtime security and more), see [SETUP.md](SETUP.md).
 
+The repository also demonstrates four attack scenarios: injecting an npm
+package, injecting a Maven library, installing a remote shell backdoor, and
+leaking passwords. Detailed steps for each can be found in
+[malicious/README.md](malicious/README.md).
+
 
