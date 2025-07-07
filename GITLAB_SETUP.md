@@ -27,6 +27,7 @@ mkdir -p "$GITLAB_HOME/config" "$GITLAB_HOME/logs" "$GITLAB_HOME/data"
 
 podman run --detach \
   --hostname "$GITLAB_HOSTNAME" \
+  --env GITLAB_OMNIBUS_CONFIG="external_url '$GITLAB_URL'" \
   --publish "${HTTP_PORT}:80" \
   --publish "${SSH_PORT}:22" \
   --name gitlab \
