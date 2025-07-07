@@ -260,8 +260,9 @@ Integrate with Promtail/Loki or Slack for centralized alerting.
 ## Supply Chain Attack Simulation (Bonus Phase)
 
 1. **Introduce a suspicious dependency**
-   - The frontend `package.json` references an `evil-package` hosted at a mock URL.
-   - The backend `pom.xml` includes `com.malicious:evil-lib:1.0.0`.
+   - Follow [malicious/README.md](malicious/README.md) to build and manually install
+     the `evil-package` and `evil-lib` artifacts. The base project omits these
+     dependencies to keep the scenario realistic.
 
 2. **Generate new SBOMs and compare**
    - The CI pipeline stores SBOMs under `sboms/` and fails if they change.
