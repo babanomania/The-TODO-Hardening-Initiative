@@ -111,13 +111,14 @@ The application—a basic TODO list app using React (frontend) and Spring Boot (
 
 ## Running GitLab locally with Podman
 
-To keep the CI/CD environment self-contained, you can launch GitLab Community Edition in a container using the helper script:
+Create a `.env` file based on `.env.example` to define your GitLab hostname, ports and credentials. The helper script will load these values automatically.
 
 ```bash
+cp .env.example .env
 ./scripts/start-gitlab.sh
 ```
 
-Set `GITLAB_HOSTNAME`, `HTTP_PORT`, or `SSH_PORT` to customize the instance. Use your chosen URL when following the steps below.
+Customize any variables in `.env` (for example `GITLAB_HOSTNAME`, `HTTP_PORT`, or `SSH_PORT`). Use your chosen URL when following the steps below.
 
 
 ---
@@ -128,8 +129,8 @@ These steps reproduce the baseline insecure deployment. They assume you have Pod
 
 1. **Clone the repository**
    ```bash
-   git clone https://gitlab.com/<group>/<project>.git
-   cd <project>
+   git clone "$GITLAB_URL/${GITLAB_GROUP}/${GITLAB_PROJECT}.git"
+   cd "$GITLAB_PROJECT"
    ```
 2. **Install prerequisites**
    - Node.js and npm
@@ -138,11 +139,11 @@ These steps reproduce the baseline insecure deployment. They assume you have Pod
    - `kubectl` for Kubernetes access
 3. **Build and push images**
    ```bash
-   podman build -t registry.gitlab.com/<group>/<project>/todo-client:latest todo-client
-   podman build -t registry.gitlab.com/<group>/<project>/todo-api:latest todo-api
-   podman login registry.gitlab.com -u <username> -p <token>
-   podman push registry.gitlab.com/<group>/<project>/todo-client:latest
-   podman push registry.gitlab.com/<group>/<project>/todo-api:latest
+   podman build -t "$GITLAB_REGISTRY/${GITLAB_GROUP}/${GITLAB_PROJECT}/todo-client:latest" todo-client
+   podman build -t "$GITLAB_REGISTRY/${GITLAB_GROUP}/${GITLAB_PROJECT}/todo-api:latest" todo-api
+   podman login "$GITLAB_REGISTRY" -u "$GITLAB_USERNAME" -p "$GITLAB_TOKEN"
+   podman push "$GITLAB_REGISTRY/${GITLAB_GROUP}/${GITLAB_PROJECT}/todo-client:latest"
+   podman push "$GITLAB_REGISTRY/${GITLAB_GROUP}/${GITLAB_PROJECT}/todo-api:latest"
    ```
 4. **Deploy PostgreSQL, API and client**
    ```bash
@@ -171,15 +172,15 @@ After ArgoCD syncs the application, the TODO app will be accessible via the `tod
 
 1. **Generate SBOMs using Syft**
    ```bash
-   syft registry.gitlab.com/<group>/<project>/todo-client:latest -o cyclonedx-json > sboms/sbom-client.json
-   syft registry.gitlab.com/<group>/<project>/todo-api:latest -o cyclonedx-json > sboms/sbom-api.json
+   syft "$GITLAB_REGISTRY/${GITLAB_GROUP}/${GITLAB_PROJECT}/todo-client:latest" -o cyclonedx-json > sboms/sbom-client.json
+   syft "$GITLAB_REGISTRY/${GITLAB_GROUP}/${GITLAB_PROJECT}/todo-api:latest" -o cyclonedx-json > sboms/sbom-api.json
    ```
    Commit the resulting files so changes can be tracked.
 
 2. **Run Grype vulnerability scans**
    ```bash
-   grype registry.gitlab.com/<group>/<project>/todo-client:latest --fail-on critical
-   grype registry.gitlab.com/<group>/<project>/todo-api:latest --fail-on critical
+   grype "$GITLAB_REGISTRY/${GITLAB_GROUP}/${GITLAB_PROJECT}/todo-client:latest" --fail-on critical
+   grype "$GITLAB_REGISTRY/${GITLAB_GROUP}/${GITLAB_PROJECT}/todo-api:latest" --fail-on critical
    ```
    The `--fail-on` flag stops the pipeline if critical CVEs are found.
 
@@ -196,8 +197,8 @@ After ArgoCD syncs the application, the TODO app will be accessible via the `tod
 1. **Sign images with Cosign and record in Rekor**
    ```bash
    cosign generate-key-pair
-   cosign sign --key cosign.key --rekor-url https://rekor.sigstore.dev registry.gitlab.com/<group>/<project>/todo-client:latest
-   cosign sign --key cosign.key --rekor-url https://rekor.sigstore.dev registry.gitlab.com/<group>/<project>/todo-api:latest
+   cosign sign --key cosign.key --rekor-url https://rekor.sigstore.dev "$GITLAB_REGISTRY/${GITLAB_GROUP}/${GITLAB_PROJECT}/todo-client:latest"
+   cosign sign --key cosign.key --rekor-url https://rekor.sigstore.dev "$GITLAB_REGISTRY/${GITLAB_GROUP}/${GITLAB_PROJECT}/todo-api:latest"
    ```
    Store `cosign.pub` in the repository for verification.
 
@@ -206,10 +207,10 @@ After ArgoCD syncs the application, the TODO app will be accessible via the `tod
    echo '{}' > provenance.json
    cosign attest --key cosign.key --rekor-url https://rekor.sigstore.dev \
        --predicate provenance.json --type slsaprovenance \
-       registry.gitlab.com/<group>/<project>/todo-client:latest
+       "$GITLAB_REGISTRY/${GITLAB_GROUP}/${GITLAB_PROJECT}/todo-client:latest"
    cosign attest --key cosign.key --rekor-url https://rekor.sigstore.dev \
        --predicate provenance.json --type slsaprovenance \
-       registry.gitlab.com/<group>/<project>/todo-api:latest
+       "$GITLAB_REGISTRY/${GITLAB_GROUP}/${GITLAB_PROJECT}/todo-api:latest"
    ```
 
 3. **Verify signatures before deployment**
