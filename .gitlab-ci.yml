@@ -1,0 +1,125 @@
+stages:
+  - build
+  - sign
+  - sbom
+  - scan
+  - policy
+  - deploy
+
+variables:
+  REGISTRY: registry.gitlab.com/$CI_PROJECT_PATH
+
+build:
+  stage: build
+  image: docker.io/library/golang:1.20-alpine
+  script:
+    - apk add --no-cache podman
+    - podman build -t $REGISTRY/todo-client:latest todo-client
+    - podman build -t $REGISTRY/todo-api:latest todo-api
+    - podman login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - podman push $REGISTRY/todo-client:latest
+    - podman push $REGISTRY/todo-api:latest
+  only:
+    - main
+
+sign:
+  stage: sign
+  image: docker.io/library/golang:1.20-alpine
+  script:
+    - apk add --no-cache curl podman
+    - curl -LO https://github.com/sigstore/cosign/releases/download/v2.2.0/cosign-linux-amd64
+    - chmod +x cosign-linux-amd64
+    - COSIGN_PASSWORD="" ./cosign-linux-amd64 generate-key-pair
+    - podman login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - COSIGN_PASSWORD="" ./cosign-linux-amd64 sign --key cosign.key --rekor-url https://rekor.sigstore.dev -y $REGISTRY/todo-client:latest
+    - COSIGN_PASSWORD="" ./cosign-linux-amd64 sign --key cosign.key --rekor-url https://rekor.sigstore.dev -y $REGISTRY/todo-api:latest
+    - echo '{}' > provenance.json
+    - COSIGN_PASSWORD="" ./cosign-linux-amd64 attest --key cosign.key --rekor-url https://rekor.sigstore.dev --predicate provenance.json --type slsaprovenance -y $REGISTRY/todo-client:latest
+    - COSIGN_PASSWORD="" ./cosign-linux-amd64 attest --key cosign.key --rekor-url https://rekor.sigstore.dev --predicate provenance.json --type slsaprovenance -y $REGISTRY/todo-api:latest
+    - COSIGN_PASSWORD="" ./cosign-linux-amd64 verify --key cosign.pub $REGISTRY/todo-client:latest
+    - COSIGN_PASSWORD="" ./cosign-linux-amd64 verify --key cosign.pub $REGISTRY/todo-api:latest
+  artifacts:
+    paths:
+      - cosign.pub
+  dependencies:
+    - build
+  only:
+    - main
+
+checkov:
+  stage: policy
+  image: bridgecrew/checkov
+  script:
+    - checkov -d k8s --quiet
+  only:
+    - main
+
+conftest:
+  stage: policy
+  image: openpolicyagent/conftest
+  script:
+    - conftest test k8s
+  only:
+    - main
+
+sbom:
+  stage: sbom
+  image: docker.io/library/golang:1.20-alpine
+  script:
+    - apk add --no-cache curl podman git
+    - curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+    - mkdir -p sboms
+    - syft $REGISTRY/todo-client:latest -o cyclonedx-json > sboms/sbom-client.json
+    - syft $REGISTRY/todo-api:latest -o cyclonedx-json > sboms/sbom-api.json
+    - ./scripts/check-sbom-diff.sh || true
+    - git config user.email "ci@example.com"
+    - git config user.name "CI Bot"
+    - git checkout $CI_COMMIT_BRANCH
+    - git add sboms
+    - git commit -m "Update SBOMs" || true
+    - git push
+  artifacts:
+    paths:
+      - sboms/sbom-client.json
+      - sboms/sbom-api.json
+  dependencies:
+    - build
+  only:
+    - main
+
+scan:
+  stage: scan
+  image: docker.io/library/golang:1.20-alpine
+  script:
+    - apk add --no-cache curl podman
+    - curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+    - curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+    - grype $REGISTRY/todo-client:latest --fail-on critical -o json > grype-client.json
+    - grype $REGISTRY/todo-api:latest --fail-on critical -o json > grype-api.json
+    - podman run --rm -v $(pwd):/src owasp/dependency-check \
+        --project todo-api --scan /src/todo-api --format JSON --out /src/odc-api
+    - podman run --rm -v $(pwd):/src owasp/dependency-check \
+        --project todo-client --scan /src/todo-client --format JSON --out /src/odc-client
+  artifacts:
+    paths:
+      - grype-client.json
+      - grype-api.json
+      - odc-api
+      - odc-client
+  dependencies:
+    - build
+  only:
+    - main
+
+deploy:
+  stage: deploy
+  script:
+    - git config user.email "ci@example.com"
+    - git config user.name "CI Bot"
+    - git checkout $CI_COMMIT_BRANCH
+    - sed -i "s|REPLACE_GROUP/REPLACE_PROJECT|$CI_PROJECT_PATH|g" k8s/*.yaml
+    - git add k8s/
+    - git commit -m "Update k8s manifests" || true
+    - git push
+  only:
+    - main
