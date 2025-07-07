@@ -1,0 +1,31 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  REGISTRY: registry.gitlab.com/REPLACE_GROUP/REPLACE_PROJECT
+
+build:
+  stage: build
+  image: docker.io/library/golang:1.20-alpine
+  script:
+    - apk add --no-cache podman
+    - podman build -t $REGISTRY/todo-client:latest todo-client
+    - podman build -t $REGISTRY/todo-api:latest todo-api
+    - podman login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - podman push $REGISTRY/todo-client:latest
+    - podman push $REGISTRY/todo-api:latest
+  only:
+    - main
+
+deploy:
+  stage: deploy
+  script:
+    - git config user.email "ci@example.com"
+    - git config user.name "CI Bot"
+    - git checkout $CI_COMMIT_BRANCH
+    - git add k8s/
+    - git commit -m "Update k8s manifests" || true
+    - git push
+  only:
+    - main
