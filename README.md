@@ -119,5 +119,7 @@ The repository also demonstrates four attack scenarios: injecting an npm
 package, injecting a Maven library, installing a remote shell backdoor, and
 leaking passwords. Detailed steps for each can be found in
 [malicious/README.md](malicious/README.md).
+When trying these simulations, always create a new Git branch to keep the `main`
+branch clean.
 
 

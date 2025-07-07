@@ -2,7 +2,8 @@
 # Attack Simulation Guide
 
 This directory contains intentionally malicious code used to demonstrate several
-ways an attacker could compromise the TODO application.
+ways an attacker could compromise the TODO application. Perform these steps on a
+separate Git branch rather than `main` to avoid polluting the primary history.
 
 ## Attack Scenarios
 
