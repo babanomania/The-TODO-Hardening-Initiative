@@ -1,11 +1,14 @@
 #!/bin/sh
 # Simple helper to run GitLab CE using Podman
-# Customize with environment variables:
+# Customize with environment variables or a .env file:
 #   GITLAB_HOME   - location for GitLab data (default: ./gitlab)
 #   GITLAB_HOSTNAME - hostname used inside the container (default: gitlab.local)
 #   HTTP_PORT     - local port for HTTP access (default: 8929)
 #   SSH_PORT      - local port for SSH access (default: 2224)
 set -e
+
+# Load variables from .env if present
+[ -f .env ] && . ./.env
 
 GITLAB_HOME=${GITLAB_HOME:-$PWD/gitlab}
 GITLAB_HOSTNAME=${GITLAB_HOSTNAME:-gitlab.local}
