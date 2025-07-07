@@ -204,3 +204,4 @@ Integrate with Promtail/Loki or Slack for centralized alerting.
 
 4. **Remove or replace the bad dependencies** once detected to restore a secure state.
 
+
