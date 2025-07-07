@@ -33,8 +33,11 @@ sign:
     - chmod +x cosign-linux-amd64
     - COSIGN_PASSWORD="" ./cosign-linux-amd64 generate-key-pair
     - podman login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - COSIGN_PASSWORD="" ./cosign-linux-amd64 sign --key cosign.key -y $REGISTRY/todo-client:latest
-    - COSIGN_PASSWORD="" ./cosign-linux-amd64 sign --key cosign.key -y $REGISTRY/todo-api:latest
+    - COSIGN_PASSWORD="" ./cosign-linux-amd64 sign --key cosign.key --rekor-url https://rekor.sigstore.dev -y $REGISTRY/todo-client:latest
+    - COSIGN_PASSWORD="" ./cosign-linux-amd64 sign --key cosign.key --rekor-url https://rekor.sigstore.dev -y $REGISTRY/todo-api:latest
+    - echo '{}' > provenance.json
+    - COSIGN_PASSWORD="" ./cosign-linux-amd64 attest --key cosign.key --rekor-url https://rekor.sigstore.dev --predicate provenance.json --type slsaprovenance -y $REGISTRY/todo-client:latest
+    - COSIGN_PASSWORD="" ./cosign-linux-amd64 attest --key cosign.key --rekor-url https://rekor.sigstore.dev --predicate provenance.json --type slsaprovenance -y $REGISTRY/todo-api:latest
     - COSIGN_PASSWORD="" ./cosign-linux-amd64 verify --key cosign.pub $REGISTRY/todo-client:latest
     - COSIGN_PASSWORD="" ./cosign-linux-amd64 verify --key cosign.pub $REGISTRY/todo-api:latest
   artifacts:
