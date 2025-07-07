@@ -1,5 +1,7 @@
 stages:
   - build
+  - sbom
+  - scan
   - sign
   - sbom
   - scan
