@@ -115,7 +115,6 @@ Follow the steps in [GITLAB_SETUP.md](GITLAB_SETUP.md) to start GitLab CE using 
 The guide explains how to copy `.env.example` to `.env`, run `. ./.env` to load
 the variables, and launch the container with those values.
 
-
 ---
 
 ## Setup Instructions (Phase 1)
