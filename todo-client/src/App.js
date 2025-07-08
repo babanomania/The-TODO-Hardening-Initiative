@@ -1,7 +1,9 @@
+
 import React, { useEffect, useState } from "react";
 import FeatherIcon from "./FeatherIcon";
 
-const API_URL = "http://localhost:8080/api/todos";
+// Use environment variable if available, fallback to localhost
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080/api/todos";
 
 function App() {
   const [todos, setTodos] = useState([]);

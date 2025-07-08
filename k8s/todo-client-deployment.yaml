@@ -23,6 +23,9 @@ spec:
           image: registry.gitlab.com/REPLACE_GROUP/REPLACE_PROJECT/todo-client:latest
           ports:
             - containerPort: 80
+          env:
+            - name: REACT_APP_API_URL
+              value: "http://todo-api:8080/api/todos"
       volumes:
         - name: cosign-key
           configMap:
