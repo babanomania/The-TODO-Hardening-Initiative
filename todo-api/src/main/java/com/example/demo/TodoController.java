@@ -19,6 +19,14 @@ public class TodoController {
         return repository.findAll();
     }
 
+
+    @GetMapping("/{id}")
+    public ResponseEntity<TodoItem> getById(@PathVariable Long id) {
+        return repository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     @PostMapping
     public TodoItem create(@RequestBody TodoItem item) {
         return repository.save(item);
