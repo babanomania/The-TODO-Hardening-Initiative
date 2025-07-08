@@ -1,0 +1,39 @@
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    container_name: gitlab
+    restart: always
+    hostname: 'localhost'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://localhost:8929'
+    ports:
+      - '8929:80'
+      - '2224:22'
+    volumes:
+      - gitlab-config:/etc/gitlab
+      - gitlab-logs:/var/log/gitlab
+      - gitlab-data:/var/opt/gitlab
+
+  gitlab-runner:
+    image: gitlab/gitlab-runner:latest
+    container_name: gitlab-runner
+    restart: always
+    depends_on:
+      - gitlab
+    environment:
+      - CI_SERVER_URL=http://gitlab:80/
+      - REGISTRATION_TOKEN=${GITLAB_TOKEN}
+      - RUNNER_NAME=docker-runner
+      - REGISTER_NON_INTERACTIVE=true
+      - RUNNER_EXECUTOR=docker
+      - DOCKER_IMAGE=docker:latest
+    volumes:
+      - gitlab-runner-config:/etc/gitlab-runner
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  gitlab-config:
+  gitlab-logs:
+  gitlab-data:
+  gitlab-runner-config:

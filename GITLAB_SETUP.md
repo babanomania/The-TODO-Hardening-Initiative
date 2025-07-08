@@ -19,23 +19,10 @@ This project requires a local GitLab CE instance for CI/CD. The container can be
 
 ## 2. Start GitLab
 
-Run GitLab CE with a persistent volume. `GITLAB_HOME` defaults to `./gitlab` if not set.
+Run GitLab CE with podman-compose
 
 ```bash
-GITLAB_HOME=${GITLAB_HOME:-$PWD/gitlab}
-mkdir -p "$GITLAB_HOME/config" "$GITLAB_HOME/logs" "$GITLAB_HOME/data"
-
-podman run --detach \
-  --hostname "$GITLAB_HOSTNAME" \
-  --env GITLAB_OMNIBUS_CONFIG="external_url '$GITLAB_URL'" \
-  --publish "${HTTP_PORT}:80" \
-  --publish "${SSH_PORT}:22" \
-  --name gitlab \
-  --restart always \
-  --volume "$GITLAB_HOME/config":/etc/gitlab \
-  --volume "$GITLAB_HOME/logs":/var/log/gitlab \
-  --volume "$GITLAB_HOME/data":/var/opt/gitlab \
-  gitlab/gitlab-ce:latest
+podman-compose -f gitlab-compose.yaml up -d gitlab
 ```
 
 GitLab will be accessible at `$GITLAB_URL` once the container finishes booting.
@@ -122,55 +109,13 @@ After the initial pipeline completes, you can continue using GitLab for CI/CD an
 
 To enable CI/CD for this project, you need to register a GitLab Runner. You can either run it via Podman or install it locally on your Mac.
 
-### Option 1: Run GitLab Runner with Podman (Containerized)
+### Run GitLab Runner with Podman (Containerized)
 
 Recommended for isolated builds or headless CI setups
 
 ```bash
-# Create a volume for runner config
-podman volume create gitlab-runner-config
-
-# Run the runner in a container
-podman run -d --name gitlab-runner --restart always \
-  -v gitlab-runner-config:/etc/gitlab-runner \
-  -v /var/run/podman/podman.sock:/var/run/docker.sock \
-  gitlab/gitlab-runner:latest
-
-# Register the runner
-podman exec -it gitlab-runner gitlab-runner register \
-  --non-interactive \
-  --url "$GITLAB_URL" \
-  --registration-token "$GITLAB_TOKEN" \
-  --executor "docker" \
-  --docker-image alpine:latest \
-  --description "Podman Runner" \
-  --tag-list "podman,ci" \
-  --run-untagged="true" \
-  --locked="false"
+podman-compose up -d gitlab-runner
 ```
 
 The container shares the host's Podman socket for Docker-compatible builds.
 
----
-
-### Option 2: Install GitLab Runner Locally on macOS
-
-Useful for local development or debugging builds
-
-```bash
-# Install GitLab Runner via Homebrew
-brew install gitlab-runner
-
-# Start the runner as a service
-brew services start gitlab-runner
-
-# Register the runner (interactive)
-gitlab-runner register
-```
-
-During registration, you'll be asked for:
-
-* **GitLab URL** (e.g., `http://localhost:8929/`)
-* **Registration Token** (found in GitLab UI: Admin → Runners)
-* **Executor type** (`shell`, `docker`, etc.)
-* **Runner Tags** (e.g., `mac,local`)

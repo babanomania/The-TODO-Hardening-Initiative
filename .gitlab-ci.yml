@@ -15,7 +15,8 @@ build:
   stage: build
   image: docker.io/library/golang:1.20-alpine
   script:
-    - apk add --no-cache podman
+    - mkdir -p /tmp/containers
+    - echo -e '[storage]\ndriver = "vfs"\n[storage.options]\n[storage.options.vfs]\n' > /etc/containers/storage.conf
     - podman build -t $REGISTRY/todo-client:latest todo-client
     - podman build -t $REGISTRY/todo-api:latest todo-api
     - podman login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
