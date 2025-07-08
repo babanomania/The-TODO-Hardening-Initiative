@@ -22,8 +22,8 @@ build:
     REGISTRY: $CI_REGISTRY/$CI_PROJECT_PATH
   script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
-    - docker build -t "$REGISTRY/todo-client:latest" todo-client
-    - docker build -t "$REGISTRY/todo-api:latest" todo-api
+    - docker build -f Containerfile -t "$REGISTRY/todo-client:latest" todo-client
+    - docker build -f Containerfile -t "$REGISTRY/todo-api:latest" todo-api
     - docker push "$REGISTRY/todo-client:latest"
     - docker push "$REGISTRY/todo-api:latest"
   only:
