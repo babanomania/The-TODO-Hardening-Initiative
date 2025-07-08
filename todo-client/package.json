@@ -7,7 +7,13 @@
     "react-dom": "^18.0.0",
     "react-scripts": "5.0.1"
   },
+  "devDependencies": {
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/jest-dom": "^6.0.0"
+  },
   "scripts": {
+    "dev": "react-scripts start",
+    "test": "react-scripts test --watchAll=false",
     "start": "react-scripts start",
     "build": "react-scripts build"
   },
