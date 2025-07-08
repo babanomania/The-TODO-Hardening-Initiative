@@ -31,13 +31,12 @@ build:
 
 sign:
   stage: sign
-  image: docker.io/library/golang:1.20-alpine
+  image: docker:latest
   script:
-    - apk add --no-cache curl podman
     - curl -LO https://github.com/sigstore/cosign/releases/download/v2.2.0/cosign-linux-amd64
     - chmod +x cosign-linux-amd64
     - COSIGN_PASSWORD="" ./cosign-linux-amd64 generate-key-pair
-    - podman login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - COSIGN_PASSWORD="" ./cosign-linux-amd64 sign --key cosign.key -y $REGISTRY/todo-client:latest
     - COSIGN_PASSWORD="" ./cosign-linux-amd64 sign --key cosign.key -y $REGISTRY/todo-api:latest
     - COSIGN_PASSWORD="" ./cosign-linux-amd64 verify --key cosign.pub $REGISTRY/todo-client:latest
@@ -68,9 +67,9 @@ conftest:
 
 sbom:
   stage: sbom
-  image: docker.io/library/golang:1.20-alpine
+  image: docker:latest
   script:
-    - apk add --no-cache curl podman git
+    - apk add --no-cache curl git
     - curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
     - mkdir -p sboms
     - syft $REGISTRY/todo-client:latest -o cyclonedx-json > sboms/sbom-client.json
@@ -93,16 +92,17 @@ sbom:
 
 scan:
   stage: scan
-  image: docker.io/library/golang:1.20-alpine
+  image: docker:latest
   script:
-    - apk add --no-cache curl podman
+    - apk add --no-cache curl 
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
     - curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
     - grype $REGISTRY/todo-client:latest --fail-on critical -o json > grype-client.json
     - grype $REGISTRY/todo-api:latest --fail-on critical -o json > grype-api.json
-    - podman run --rm -v $(pwd):/src owasp/dependency-check \
+    - docker run --rm -v $(pwd):/src owasp/dependency-check \
         --project todo-api --scan /src/todo-api --format JSON --out /src/odc-api
-    - podman run --rm -v $(pwd):/src owasp/dependency-check \
+    - docker run --rm -v $(pwd):/src owasp/dependency-check \
         --project todo-client --scan /src/todo-client --format JSON --out /src/odc-client
   artifacts:
     paths:
