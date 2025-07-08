@@ -10,13 +10,16 @@ stages:
 
 variables:
   REGISTRY: $GITLAB_REGISTRY/$CI_PROJECT_PATH
-  DOCKER_DRIVER: overlay2
-  DOCKER_HOST: tcp://docker:2375
-  DOCKER_TLS_CERTDIR: ""
 
 build:
   stage: build
-  image: docker.io/library/golang:1.20-alpine
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_TLS_CERTDIR: ""
+    REGISTRY: $CI_REGISTRY/$CI_PROJECT_PATH
   script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
     - docker build -t "$REGISTRY/todo-client:latest" todo-client
