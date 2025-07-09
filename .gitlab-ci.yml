@@ -43,13 +43,7 @@ sbom:
     - mkdir -p sboms
     - syft $REGISTRY/todo-client:latest -o cyclonedx-json > sboms/sbom-client.json
     - syft $REGISTRY/todo-api:latest -o cyclonedx-json > sboms/sbom-api.json
-    - ./scripts/check-sbom-diff.sh || true
-    - # git config user.email "ci@example.com"
-    - # git config user.name "CI Bot"
-    - # git checkout $CI_COMMIT_BRANCH
-    - # git add sboms
-    - # git commit -m "Update SBOMs" || true
-    - # git push
+    - ./scripts/check-sbom-diff.sh
   artifacts:
     paths:
       - sboms/sbom-client.json
