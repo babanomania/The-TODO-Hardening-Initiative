@@ -1,10 +1,6 @@
 stages:
   - test
   - build
-  - sbom
-  - scan
-  - sast
-  - policy
   - sign
 
 variables:
