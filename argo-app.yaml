@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: todo
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: $GITLAB_URL/$GITLAB_GROUP/$GITLAB_PROJECT.git
+    path: charts/todo-app
+    targetRevision: HEAD
+    helm:
+      values: |
+        gitlab:
+          group: "$GITLAB_GROUP"
+          project: "$GITLAB_PROJECT"
+          imagePullSecret: gitlab-regcred
+        pgPassword: "$POSTGRES_PASSWORD"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: todo
+  syncPolicy:
+    automated: {}
