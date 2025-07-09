@@ -84,26 +84,26 @@ scan:
     # -------- OWASP Dependency-Check --------
     - echo "Scanning todo-api with OWASP Dependency-Check..."
     - docker run --rm \
-        -e NVD_API_KEY=$NVD_API_KEY \
         -v $(pwd):/src owasp/dependency-check \
         --project todo-api \
         --scan /src/todo-api \
         --format JSON \
         --out /src/odc-api \
-        --failOnCVSS 7
+        --failOnCVSS 7 \
+        --property nvd.api.key=$NVD_API_KEY
 
     - echo "OWASP summary for todo-api:"
     - jq '.dependencies[].vulnerabilities[]? | .severity' odc-api/dependency-check-report.json | sort | uniq -c
 
     - echo " Scanning todo-client with OWASP Dependency-Check..."
     - docker run --rm \
-        -e NVD_API_KEY=$NVD_API_KEY \
         -v $(pwd):/src owasp/dependency-check \
         --project todo-client \
         --scan /src/todo-client \
         --format JSON \
         --out /src/odc-client \
-        --failOnCVSS 7
+        --failOnCVSS 7 \
+        --property nvd.api.key=$NVD_API_KEY
 
     - echo "OWASP summary for todo-client:"
     - jq '.dependencies[].vulnerabilities[]? | .severity' odc-client/dependency-check-report.json | sort | uniq -c
@@ -167,7 +167,7 @@ checkov:
     - pip install checkov
   script:
     - checkov -d k8s --quiet -o json --output-file-path checkov-report.json
-    - echo "📊 Checkov Summary:"
+    - echo "Checkov Summary:"
     - jq '.summary' checkov-report.json
   artifacts:
     paths:
