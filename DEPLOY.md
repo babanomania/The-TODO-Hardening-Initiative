@@ -8,7 +8,11 @@ It assumes you already have container images built and signed in the GitLab regi
 
 - Access to a Kubernetes cluster (`kubectl` configured).
 - Helm installed on your local system.
-- Argo CD installed in your Kubernetes cluster.
+- Argo CD installed in your Kubernetes cluster. Install it with:
+  ```bash
+  kubectl create namespace argocd
+  kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+  ```
 - The chart automatically embeds the `cosign.pub` key from the repository's `cosign` directory as the `cosign-public-key` ConfigMap so the init containers can verify images.
 - Export `POSTGRES_PASSWORD` in your shell. Helm will create the `pg-password`
   Kubernetes Secret from this value when deploying.
@@ -78,6 +82,24 @@ Argo CD can continuously manage the Helm release using a GitOps workflow. After 
    ```
 
 Argo CD will install the chart and keep it synchronized with Git.
+
+### Checking the deployment in the Argo CD UI
+
+Forward the Argo CD server service locally and log in to verify the release:
+
+```bash
+kubectl -n argocd port-forward svc/argocd-server 8082:443
+```
+
+Fetch the initial admin password and open the web UI:
+
+```bash
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
+```
+
+Navigate to <https://localhost:8082>, sign in as `admin` with the retrieved
+password, and confirm the `todo` application reports a **Synced** and
+**Healthy** status.
 
 ## Accessing Services Locally
 
