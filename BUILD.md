@@ -43,17 +43,22 @@ With these steps complete, the build artifacts will be available in the GitLab r
 
 ## Handling Build Failures
 
-If a pipeline fails, inspect each job in the GitLab UI:
+If a pipeline fails, review the output for **every job** in the GitLab UI so you
+can determine exactly which step failed and why:
 
 1. Navigate to your project on GitLab.
-2. Open **CI/CD → Pipelines** and click the failed pipeline.
-3. Expand the job that failed to review its log output.
+2. Open **CI/CD → Pipelines** and select the failed pipeline.
+3. The pipeline graph shows each job. Failed jobs are highlighted in red.
+4. Click a job name to open its log. Expand each script section to inspect the
+   commands that ran and any error messages.
 
-You can also check logs locally with the `glab` CLI:
+You can check the logs from your terminal as well using the `glab` CLI:
 
 ```bash
-glab ci view --web     # open pipeline details in a browser
-glab ci view --job <job-id>
+glab ci view --web               # open pipeline details in a browser
+glab ci view --job <job-id>      # stream the log for a single job
+glab ci status                   # list jobs with their status
 ```
 
-Fix the issue, commit your changes, and push again to re-run the pipeline.
+After diagnosing the failure, fix the underlying issue, commit your changes and
+push again to trigger a new pipeline.
