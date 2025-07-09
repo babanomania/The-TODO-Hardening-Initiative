@@ -13,7 +13,7 @@ spec:
     spec:
       initContainers:
         - name: verify-image
-          image: ghcr.io/sigstore/cosign:v2.2.0
+          image: gcr.io/projectsigstore/cosign:v2.2.0
           command: ["cosign", "verify", "--key=/cosign/cosign.pub", "{{ .Values.gitlab.registry }}/{{ .Values.gitlab.group }}/{{ .Values.gitlab.project }}/todo-api:latest"]
           volumeMounts:
             - name: cosign-key
