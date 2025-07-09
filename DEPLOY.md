@@ -7,12 +7,6 @@ It assumes you already have container images built and signed in the GitLab regi
 ## Prerequisites
 
 - Access to a Kubernetes cluster (`kubectl` configured).
-- Helm installed on your local system.
-- Argo CD installed in your Kubernetes cluster. Install it with:
-  ```bash
-  kubectl create namespace argocd
-  kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-  ```
 - The chart automatically embeds the `cosign.pub` key from the repository's `cosign` directory as the `cosign-public-key` ConfigMap so the init containers can verify images.
 - Export `POSTGRES_PASSWORD` in your shell. Helm will create the `pg-password`
   Kubernetes Secret from this value when deploying.
@@ -31,15 +25,10 @@ brew install kubectl helm argocd
 
 1. **Create the target namespace**
    ```bash
-   kubectl create namespace todo || true
-   ```
-2. **Provide registry credentials**
-   Set environment variables so Helm can create the pull secret automatically:
-   ```bash
-   source .env
+   kubectl create namespace todo
    ```
 
-3. **Install the chart**
+2. **Install the chart**
    ```bash
    helm upgrade --install todo charts/todo-app \
      --namespace todo \
@@ -56,7 +45,23 @@ Once installation completes, the TODO UI will be reachable via the `todo-client`
 
 ## Deploying with Argo CD
 
-1. **Accessing ArgoCD UI locally**
+
+1. **Create the target namespace**
+   ```bash
+   kubectl create namespace todo
+   ```
+
+2. **Installing ArgoCD**
+
+    ```bash
+    kubectl create namespace argocd
+    ```
+
+    ```bash
+    kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+    ```
+
+3. **Accessing ArgoCD UI locally**
 
     Forward the Argo CD server service locally and log in to verify the release:
 
@@ -64,7 +69,7 @@ Once installation completes, the TODO UI will be reachable via the `todo-client`
     kubectl -n argocd port-forward svc/argocd-server 8082:443
     ```
 
-2. **Fetch Admin Password**
+4. **Fetch Admin Password**
 
     Fetch the initial admin password and open the web UI:
 
@@ -72,10 +77,10 @@ Once installation completes, the TODO UI will be reachable via the `todo-client`
     kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
     ```
 
-3. **Login to ArgoCD CLI**
+5. **Login to ArgoCD CLI**
 
     ```bash
-    argocd login localhost:8080 \
+    argocd login localhost:8082 \
       --username admin \
       --password <ARGOCD_ADMIN_PASSWORD> \
       --insecure
@@ -83,7 +88,20 @@ Once installation completes, the TODO UI will be reachable via the `todo-client`
 
     Navigate to <https://localhost:8082>, sign in as `admin` with the retrieved password
 
-4. **Add the Gitlab repository**
+
+6. **Provide registry credentials**
+  
+   ```bash
+   source .env
+   kubectl create secret docker-registry gitlab-registry-creds \
+    --docker-server=registry.gitlab.com \
+    --docker-username=$GITLAB_USERNAME \
+    --docker-password=$GITLAB_TOKEN \
+    --docker-email=you@example.com \
+    -n argocd
+   ```
+
+7. **Add the Gitlab repository**
    ```bash
    REPO_URL="$GITLAB_URL/$GITLAB_GROUP/$GITLAB_PROJECT.git"
    argocd repo add "$REPO_URL" \
@@ -92,7 +110,7 @@ Once installation completes, the TODO UI will be reachable via the `todo-client`
     --insecure
    ```
 
-5. **Create an Application** pointing at the chart:
+8. **Create an Application** pointing at the chart:
    ```bash
    source .env
    envsubst < argo-app.yaml | kubectl apply -f -
