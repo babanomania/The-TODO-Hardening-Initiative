@@ -15,7 +15,7 @@ This project assumes you’ve heard about supply chain attacks. Here, you’ll b
 * Database: PostgreSQL
 * Containerization: Podman
 * CI/CD: GitLab CI + GitLab CLI
-* GitOps Deployment: Kubernetes via ArgoCD
+* GitOps Deployment: Kubernetes via ArgoCD + Helm
 
 **Project Goals**:
 
