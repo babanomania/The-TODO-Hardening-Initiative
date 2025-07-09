@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-client
+spec:
+  selector:
+    matchLabels:
+      app: todo-client
+  template:
+    metadata:
+      labels:
+        app: todo-client
+    spec:
+      initContainers:
+        - name: verify-image
+          image: ghcr.io/sigstore/cosign:v2.2.0
+          command: ["cosign", "verify", "--key=/cosign/cosign.pub", "{{ .Values.gitlab.registry }}/{{ .Values.gitlab.group }}/{{ .Values.gitlab.project }}/todo-client:latest"]
+          volumeMounts:
+            - name: cosign-key
+              mountPath: /cosign
+      containers:
+        - name: todo-client
+          image: {{ .Values.gitlab.registry }}/{{ .Values.gitlab.group }}/{{ .Values.gitlab.project }}/todo-client:latest
+          ports:
+            - containerPort: 80
+          env:
+            - name: REACT_APP_API_URL
+              value: "http://todo-api:8080/api/todos"
+      volumes:
+        - name: cosign-key
+          configMap:
+            name: cosign-public-key
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: todo-client
+spec:
+  selector:
+    app: todo-client
+  ports:
+    - port: 80

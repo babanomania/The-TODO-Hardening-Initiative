@@ -1,0 +1,4 @@
+gitlab:
+  registry: registry.gitlab.com
+  group: REPLACE_GROUP
+  project: REPLACE_PROJECT

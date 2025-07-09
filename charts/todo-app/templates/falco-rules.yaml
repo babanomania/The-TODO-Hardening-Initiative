@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: falco-rules
+  namespace: falco
+data:
+  custom_rules.yaml: |
+    - rule: Shell in Container
+      desc: Detect shell access inside a container
+      condition: container.id != host and proc.name in (bash, sh, zsh)
+      output: "Shell in container (user=%user.name container=%container.id cmd=%proc.cmdline)"
+      priority: CRITICAL
+    - rule: Outbound Connection
+      desc: Detect outbound network connection from container
+      condition: evt.type=connect and container.id!=host and fd.sip != 10.0.0.0/8
+      output: "Outbound connection detected (command=%proc.cmdline ip=%fd.sip)"
+      priority: WARNING

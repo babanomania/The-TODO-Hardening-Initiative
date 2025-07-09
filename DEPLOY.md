@@ -11,8 +11,8 @@ It assumes you already have container images built and signed in the GitLab regi
 - The Bitnami Sealed Secrets controller installed and the `kubeseal` CLI
   available.
   This is required for `pg-password-sealed.yaml`.
-- Replace `REPLACE_GROUP` and `REPLACE_PROJECT` in the manifests under
-  `k8s/` with your GitLab namespace and project name before applying them.
+- Copy `.env.example` to `.env` and set `GITLAB_GROUP` and `GITLAB_PROJECT`.
+- These values are consumed by the Helm chart in `charts/todo-app`.
 
 ### Installing tools on macOS
 
@@ -27,28 +27,11 @@ brew install kubectl argocd
    kubectl create namespace argocd
    kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
    ```
-2. **Apply the Cosign public key and sealed secret**
+2. **Create the Argo CD Application**
    ```bash
-   kubectl apply -f k8s/cosign-public-key.yaml
-   kubectl apply -f k8s/pg-password-sealed.yaml
+   envsubst < k8s/argo-app.yaml | kubectl apply -f -
    ```
-3. **Deploy core services**
-   ```bash
-   kubectl apply -f k8s/postgres-deployment.yaml
-   kubectl apply -f k8s/todo-api-deployment.yaml
-   kubectl apply -f k8s/todo-client-deployment.yaml
-   ```
-4. **Deploy runtime monitoring and logging**
-   ```bash
-   kubectl apply -f k8s/falco-rules.yaml
-   kubectl apply -f k8s/falco-daemonset.yaml
-   kubectl apply -f k8s/loki-stack.yaml
-   ```
-5. **Create the Argo CD Application**
-   ```bash
-   kubectl apply -f k8s/argo-app.yaml
-   ```
-6. **Sync the application**
+3. **Sync the application**
    ```bash
    argocd app sync todo-app
    ```
