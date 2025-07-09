@@ -1,6 +1,10 @@
 stages:
   - test
   - build
+  - sbom
+  - scan
+  - sast
+  - policy
   - sign
 
 variables:
@@ -40,6 +44,194 @@ build:
     - docker build -f todo-api/Containerfile -t "$REGISTRY/todo-api:latest" todo-api
     - docker push "$REGISTRY/todo-client:latest"
     - docker push "$REGISTRY/todo-api:latest"
+  only:
+    - main
+
+sbom:
+  stage: sbom
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_TLS_CERTDIR: ""
+    REGISTRY: $CI_REGISTRY/$CI_PROJECT_PATH
+  script:
+    - apk add --no-cache curl git
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+    - curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+    - mkdir -p sboms
+    - syft $REGISTRY/todo-client:latest -o syft-text  > sboms/sbom-client.txt
+    - syft $REGISTRY/todo-api:latest -o syft-text > sboms/sbom-api.txt
+    - ./scripts/check-sbom-diff.sh
+  artifacts:
+    paths:
+      - sboms/sbom-client.txt
+      - sboms/sbom-api.txt
+  dependencies:
+    - build
+  only:
+    - main
+
+scan:
+  stage: scan
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_TLS_CERTDIR: ""
+    REGISTRY: $CI_REGISTRY/$CI_PROJECT_PATH
+  script:
+    - apk add --no-cache curl jq
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+
+    # Install Grype
+    - curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+
+    # -------- Grype Scanning --------
+    - echo "Scanning todo-client with Grype..."
+    - grype "$REGISTRY/todo-client:latest" --fail-on critical -o json > grype-client.json
+    - echo "Grype summary for todo-client:"
+    - jq '.matches[].vulnerability.severity' grype-client.json | sort | uniq -c
+
+    - echo "Scanning todo-api with Grype..."
+    - grype "$REGISTRY/todo-api:latest" --fail-on critical -o json > grype-api.json
+    - echo "Grype summary for todo-api:"
+    - jq '.matches[].vulnerability.severity' grype-api.json | sort | uniq -c
+
+    # -------- OWASP Dependency-Check --------
+    - echo "Scanning todo-api with OWASP Dependency-Check..."
+    - docker run --rm \
+        -v $(pwd):/src owasp/dependency-check \
+        --project todo-api \
+        --scan /src/todo-api \
+        --format JSON \
+        --out /src/odc-api \
+        --failOnCVSS 7 \
+        --property nvd.api.key=$NVD_API_KEY
+
+    - echo "OWASP summary for todo-api:"
+    - jq '.dependencies[].vulnerabilities[]? | .severity' odc-api/dependency-check-report.json | sort | uniq -c
+
+    - echo " Scanning todo-client with OWASP Dependency-Check..."
+    - docker run --rm \
+        -v $(pwd):/src owasp/dependency-check \
+        --project todo-client \
+        --scan /src/todo-client \
+        --format JSON \
+        --out /src/odc-client \
+        --failOnCVSS 7 \
+        --property nvd.api.key=$NVD_API_KEY
+
+    - echo "OWASP summary for todo-client:"
+    - jq '.dependencies[].vulnerabilities[]? | .severity' odc-client/dependency-check-report.json | sort | uniq -c
+
+    - echo "Scanning complete. Full reports saved as artifacts."
+
+  artifacts:
+    paths:
+      - grype-client.json
+      - grype-api.json
+      - odc-api
+      - odc-client
+  dependencies:
+    - build
+  only:
+    - main
+
+maven-dependency-scan:
+  stage: scan
+  image: maven:3.9-eclipse-temurin-17
+  script:
+    - apt-get update && apt-get install -y jq
+    - mvn -f todo-api/pom.xml -B org.owasp:dependency-check-maven:check -Dformat=JSON -DoutputDirectory=odc-maven -Dnvd.api.key=$NVD_API_KEY
+
+    # Print summary
+    - echo "OWASP Dependency-Check (Maven) summary:"
+    - if [ -f odc-maven/dependency-check-report.json ]; then
+        jq '.dependencies[].vulnerabilities[]? | .severity' odc-maven/dependency-check-report.json | sort | uniq -c;
+      else
+        echo "No report found. Skipping summary.";
+      fi
+  artifacts:
+    paths:
+      - odc-maven
+  dependencies:
+    - build
+  only:
+    - main
+
+npm-dependency-scan:
+  stage: scan
+  image: node:18-alpine
+  script:
+    - cd todo-client
+    - npm install --legacy-peer-deps
+    - npm audit --audit-level=high
+  artifacts:
+    paths:
+      - npm-audit.json
+  dependencies:
+    - build
+  only:
+    - main
+
+semgrep-sast:
+  stage: sast
+  image: returntocorp/semgrep:latest
+  script:
+    - semgrep --config=auto --json -o gl-sast-report.json todo-client todo-api
+  artifacts:
+    paths:
+      - gl-sast-report.json
+  allow_failure: true
+  dependencies:
+    - build
+  only:
+    - main
+
+checkov:
+  stage: policy
+  image: python:3.10-slim
+  before_script:
+    - pip install checkov
+  script:
+    - checkov -d k8s --quiet -o json --output-file-path checkov-report.json
+    - echo "Checkov Summary:"
+    - jq '.summary' checkov-report.json
+  artifacts:
+    paths:
+      - checkov-report.json
+  only:
+    - main
+
+conftest:
+  stage: policy
+  allow_failure: true
+  image: golang:1.21-alpine
+  before_script:
+    - apk add --no-cache curl jq
+    - export CONTEST_VERSION=0.45.0
+    - curl -L -o conftest.tar.gz "https://github.com/open-policy-agent/conftest/releases/download/v${CONTEST_VERSION}/conftest_${CONTEST_VERSION}_Linux_x86_64.tar.gz"
+    - tar -xzf conftest.tar.gz
+    - mv conftest /usr/local/bin/conftest
+    - chmod +x /usr/local/bin/conftest
+    - conftest --version
+  script:
+    - echo "Conftest Summary:"
+    - conftest test k8s
+    - conftest test k8s --output json --policy policy --no-color > conftest-report.json
+    - |
+      if [ "$(jq '[.[] | select(.failures != null)] | length' conftest-report.json)" -gt 0 ]; then
+        echo "Conftest policy violations found!"
+        exit 1
+      else
+        echo "Conftest passed with no policy violations."
+      fi
+  artifacts:
+    paths:
+      - conftest-report.json
   only:
     - main
 
