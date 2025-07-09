@@ -15,7 +15,7 @@ This project assumes you’ve heard about supply chain attacks. Here, you’ll b
 * Database: PostgreSQL
 * Containerization: Podman
 * CI/CD: GitLab CI + GitLab CLI
-* GitOps Deployment: Kubernetes via ArgoCD + Helm
+* Deployment: Kubernetes via Helm
 
 **Project Goals**:
 
@@ -23,7 +23,7 @@ This project assumes you’ve heard about supply chain attacks. Here, you’ll b
 * Apply secure-by-design practices using only open-source tools.
 * Transition from trust-based to verifiable software delivery.
 * Teach real-world DevSecOps concepts through hands-on implementation.
-The lifecycle is split into a **build phase** handled by GitLab CI and a **deploy phase** orchestrated with Argo CD. The build phase produces signed and scanned container images, while Argo CD verifies those signatures before rolling out to Kubernetes.
+ The lifecycle is split into a **build phase** handled by GitLab CI and a **deploy phase** driven by Helm. The build phase produces signed and scanned container images and Helm installs them after signature verification.
 
 
 ## Hardening Features Implemented
@@ -44,7 +44,7 @@ The lifecycle is split into a **build phase** handled by GitLab CI and a **deplo
 
 * All Podman-built images are signed using **Cosign**.
 * Signature metadata is stored in a **Rekor** transparency log.
-* ArgoCD performs signature verification using `cosign verify` prior to deployment.
+ * A Cosign init container performs signature verification using `cosign verify` prior to deployment.
 * Each deployment runs a Cosign init container that verifies the image signature using a ConfigMap containing the public key.
 
 ### Provenance and Supply Chain Attestation
@@ -107,7 +107,7 @@ The lifecycle is split into a **build phase** handled by GitLab CI and a **deplo
 | IaC hardening                     | Checkov, Conftest (OPA)         |
 | Runtime behavior detection        | Falco                           |
 | Observability & incident handling | Loki, Promtail, Grafana         |
-| Secure GitOps deployment          | ArgoCD + signature verification |
+| Secure deployment                 | Helm + signature verification |
 
 ## Getting Started
 For build instructions see [BUILD.md](./BUILD.md). Deployment steps are covered in [DEPLOY.md](./DEPLOY.md).
