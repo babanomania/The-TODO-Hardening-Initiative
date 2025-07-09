@@ -36,3 +36,49 @@ brew install kubectl helm
 
 The Helm chart deploys PostgreSQL, Grafana Loki, and Falco alongside the TODO application.
 Once installation completes, the TODO UI will be reachable via the `todo-client` service.
+
+## Accessing Services Locally
+
+Use `kubectl port-forward` to expose the services on your laptop or Mac. Each command
+forwards the service into a local port so you can browse the UIs and test the API.
+
+### TODO app
+
+Run two port‑forward commands—one for the API and one for the UI—in separate terminals:
+
+```bash
+# Terminal 1
+kubectl -n todo port-forward svc/todo-api 8080:8080
+
+# Terminal 2
+kubectl -n todo port-forward svc/todo-client 3000:80
+```
+
+Open <http://localhost:3000> in your browser. The web UI expects the API on
+`localhost:8080`, so both commands must remain running. Verify the API works
+with `curl http://localhost:8080/api/todos`.
+
+### Grafana dashboard
+
+```bash
+kubectl -n monitoring port-forward svc/grafana 3001:3000
+```
+
+Navigate to <http://localhost:3001> (default credentials `admin`/`admin`).
+From the *Explore* tab, query the Loki data source. You should see logs from the
+`todo-api` and `todo-client` pods, confirming Grafana can reach the
+application's log stream.
+
+### Falco events
+
+Falco runs as a daemonset. Forward a pod port to view the real-time event stream:
+
+```bash
+POD=$(kubectl -n falco get pods -l app=falco -o jsonpath='{.items[0].metadata.name}')
+kubectl -n falco port-forward $POD 8765:8765
+```
+
+Connecting to `localhost:8765` with a tool like `nc` or `curl` should return
+event messages. Look for references to the `todo-api` and `todo-client` pods to
+verify Falco is monitoring the entire application stack.
+
