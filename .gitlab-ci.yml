@@ -45,8 +45,8 @@ sbom:
     - ./scripts/check-sbom-diff.sh
   artifacts:
     paths:
-      - sboms/sbom-client.json
-      - sboms/sbom-api.json
+      - sboms/sbom-client.txt
+      - sboms/sbom-api.txt
   dependencies:
     - build
   only:
