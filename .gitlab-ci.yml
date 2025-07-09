@@ -182,13 +182,16 @@ conftest:
   image: golang:1.21-alpine
   before_script:
     - apk add --no-cache curl jq
-    - curl -L https://github.com/open-policy-agent/conftest/releases/latest/download/conftest_Linux_x86_64.tar.gz | tar -xz -C /usr/local/bin
+    - CONTEST_VERSION="0.45.0"
+    - curl -L -o conftest.tar.gz "https://github.com/open-policy-agent/conftest/releases/download/v${CONTEST_VERSION}/conftest_Linux_x86_64.tar.gz"
+    - tar -xzf conftest.tar.gz
+    - mv conftest /usr/local/bin/conftest
+    - chmod +x /usr/local/bin/conftest
     - conftest --version
   script:
-    - echo "Running Conftest..."
     - conftest test k8s --output json --policy policy --no-color > conftest-report.json
     - echo "Conftest Summary:"
-    - "jq '.[] | select(.failures != null) | {file: .filename, failures: .failures | length}' conftest-report.json"
+    - jq '.[] | select(.failures != null) | {file: .filename, failures: .failures | length}' conftest-report.json
   artifacts:
     paths:
       - conftest-report.json
@@ -223,7 +226,7 @@ sign:
     - cosign verify --key cosign/cosign.pub "$REGISTRY/todo-api:latest" || (echo "Verification failed for todo-api" && exit 1)
   artifacts:
     paths:
-      - cosign.pub
+      - cosign/cosign.pub
   dependencies:
     - build
   only:
