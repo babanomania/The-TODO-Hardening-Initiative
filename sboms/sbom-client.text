@@ -1,0 +1,350 @@
+[Image]
+ Layer:		 0
+ Digest:	 sha256:f1417ff83b319fbdae6dd9cd6d8c9c88002dcd75ecf6ec201c8c6894681cf2b5
+ Size:		 7044859
+ MediaType:	 application/vnd.docker.image.rootfs.diff.tar.gzip
+
+ Layer:		 1
+ Digest:	 sha256:1003ff723696bfd596cd65592fa26554840e90780f6937e6ddccc909b8ed1443
+ Size:		 4449418
+ MediaType:	 application/vnd.docker.image.rootfs.diff.tar.gzip
+
+ Layer:		 2
+ Digest:	 sha256:1d54586a1706c0af48668c10cbd8246626acb4fec01287be54cd9b26d72df15d
+ Size:		 1616
+ MediaType:	 application/vnd.docker.image.rootfs.diff.tar.gzip
+
+ Layer:		 3
+ Digest:	 sha256:c1cd5c8c68ef2336b2504336206d58931e9215a863a35a741f66aa3f4970b0f5
+ Size:		 2123
+ MediaType:	 application/vnd.docker.image.rootfs.diff.tar.gzip
+
+ Layer:		 4
+ Digest:	 sha256:f0fb842dea4179a94f1b8c2ac178e72690fa2b30e25e03a7a7893794fe9520a5
+ Size:		 1273
+ MediaType:	 application/vnd.docker.image.rootfs.diff.tar.gzip
+
+ Layer:		 5
+ Digest:	 sha256:f9cb3f1f1d3d7c591c4ab02118816fe6761a8f2f7b2500a5ec7421a42b8a5ea2
+ Size:		 4621
+ MediaType:	 application/vnd.docker.image.rootfs.diff.tar.gzip
+
+ Layer:		 6
+ Digest:	 sha256:31531248c7cbf5b31a8d9695c20041b9b3749b8c04b9831331ad93333fcf1474
+ Size:		 29470830
+ MediaType:	 application/vnd.docker.image.rootfs.diff.tar.gzip
+
+ Layer:		 7
+ Digest:	 sha256:6053d3678ff5159baa896d3e592cd6f60217029adfca385e957cfce5f2f25d82
+ Size:		 523749
+ MediaType:	 application/vnd.docker.image.rootfs.diff.tar.gzip
+
+[alpine-baselayout]
+ Version:	 3.4.0-r0
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[alpine-baselayout-data]
+ Version:	 3.4.0-r0
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[alpine-keys]
+ Version:	 2.4-r1
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[aom-libs]
+ Version:	 3.5.0-r0
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[apk-tools]
+ Version:	 2.12.10-r1
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[brotli-libs]
+ Version:	 1.0.9-r9
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[busybox]
+ Version:	 1.35.0-r29
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[busybox-binsh]
+ Version:	 1.35.0-r29
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[ca-certificates]
+ Version:	 20220614-r4
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[ca-certificates-bundle]
+ Version:	 20220614-r4
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[curl]
+ Version:	 7.88.1-r1
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[fontconfig]
+ Version:	 2.14.1-r0
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[freetype]
+ Version:	 2.12.1-r0
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[geoip]
+ Version:	 1.6.12-r3
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libavif]
+ Version:	 0.11.1-r0
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libbsd]
+ Version:	 0.11.7-r0
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libbz2]
+ Version:	 1.0.8-r4
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libc-utils]
+ Version:	 0.7.2-r3
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libcrypto3]
+ Version:	 3.0.8-r3
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libcurl]
+ Version:	 7.88.1-r1
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libdav1d]
+ Version:	 1.0.0-r2
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libedit]
+ Version:	 20221030.3.1-r0
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libexpat]
+ Version:	 2.5.0-r0
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libgcrypt]
+ Version:	 1.10.1-r0
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libgd]
+ Version:	 2.3.3-r3
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libgpg-error]
+ Version:	 1.46-r1
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libice]
+ Version:	 1.0.10-r1
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libintl]
+ Version:	 0.21.1-r1
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libjpeg-turbo]
+ Version:	 2.1.4-r0
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libmd]
+ Version:	 1.0.4-r0
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libpng]
+ Version:	 1.6.38-r0
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libsm]
+ Version:	 1.2.3-r1
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libssl3]
+ Version:	 3.0.8-r3
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libuuid]
+ Version:	 2.38.1-r1
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libwebp]
+ Version:	 1.2.4-r1
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libx11]
+ Version:	 1.8.4-r0
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libxau]
+ Version:	 1.0.10-r0
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libxcb]
+ Version:	 1.15-r0
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libxdmcp]
+ Version:	 1.1.4-r0
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libxext]
+ Version:	 1.3.5-r0
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libxml2]
+ Version:	 2.10.3-r1
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libxpm]
+ Version:	 3.5.15-r0
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libxslt]
+ Version:	 1.1.37-r1
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[libxt]
+ Version:	 1.2.1-r0
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[musl]
+ Version:	 1.2.3-r4
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[musl-utils]
+ Version:	 1.2.3-r4
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[ncurses-libs]
+ Version:	 6.3_p20221119-r0
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[ncurses-terminfo-base]
+ Version:	 6.3_p20221119-r0
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[nghttp2-libs]
+ Version:	 1.51.0-r0
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[nginx]
+ Version:	 1.23.4-r1
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[nginx-module-geoip]
+ Version:	 1.23.4-r1
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[nginx-module-image-filter]
+ Version:	 1.23.4-r1
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[nginx-module-njs]
+ Version:	 1.23.4.0.7.11-r1
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[nginx-module-xslt]
+ Version:	 1.23.4-r1
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[pcre2]
+ Version:	 10.42-r0
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[scanelf]
+ Version:	 1.3.5-r1
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[ssl_client]
+ Version:	 1.35.0-r29
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[tiff]
+ Version:	 4.4.0-r3
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[tzdata]
+ Version:	 2023c-r0
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[xz-libs]
+ Version:	 5.2.9-r0
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[zlib]
+ Version:	 1.2.13-r0
+ Type:		 apk
+ Found by:	 apk-db-cataloger
+
+[zstd-libs]
+ Version:	 1.5.2-r9
+ Type:		 apk
+ Found by:	 apk-db-cataloger

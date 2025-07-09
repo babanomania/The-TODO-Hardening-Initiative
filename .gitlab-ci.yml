@@ -40,8 +40,8 @@ sbom:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
     - curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
     - mkdir -p sboms
-    - syft $REGISTRY/todo-client:latest -o cyclonedx-json > sboms/sbom-client.json
-    - syft $REGISTRY/todo-api:latest -o cyclonedx-json > sboms/sbom-api.json
+    - syft $REGISTRY/todo-client:latest -o syft-text  > sboms/sbom-client.txt
+    - syft $REGISTRY/todo-api:latest -o syft-text > sboms/sbom-api.txt
     - ./scripts/check-sbom-diff.sh
   artifacts:
     paths:

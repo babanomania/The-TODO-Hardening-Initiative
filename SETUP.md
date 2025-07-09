@@ -59,8 +59,8 @@ To experiment with the remote shell backdoor, follow
 
 1. **Generate SBOMs using Syft**
    ```bash
-   syft "$GITLAB_REGISTRY/${GITLAB_GROUP}/${GITLAB_PROJECT}/todo-client:latest" -o cyclonedx-json > sboms/sbom-client.json
-   syft "$GITLAB_REGISTRY/${GITLAB_GROUP}/${GITLAB_PROJECT}/todo-api:latest" -o cyclonedx-json > sboms/sbom-api.json
+   syft "$GITLAB_REGISTRY/${GITLAB_GROUP}/${GITLAB_PROJECT}/todo-client:latest" -o syft-text > sboms/sbom-client.txt
+   syft "$GITLAB_REGISTRY/${GITLAB_GROUP}/${GITLAB_PROJECT}/todo-api:latest" -o syft-text > sboms/sbom-api.txt
    ```
    Commit the resulting files so changes can be tracked.
 
