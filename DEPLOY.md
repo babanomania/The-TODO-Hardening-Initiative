@@ -1,22 +1,24 @@
 # Deployment Phase Guide
 
 This document explains how to deploy the hardened TODO application using **Helm**.
+Helm can be invoked directly or managed through **Argo CD** for GitOps workflows.
 It assumes you already have container images built and signed in the GitLab registry.
 
 ## Prerequisites
 
 - Access to a Kubernetes cluster (`kubectl` configured).
 - Helm installed on your local system.
+- Argo CD installed in your Kubernetes cluster.
 - The chart automatically embeds the `cosign.pub` key from the repository's `cosign` directory as the `cosign-public-key` ConfigMap so the init containers can verify images.
 - Export `POSTGRES_PASSWORD` in your shell. Helm will create the `pg-password`
   Kubernetes Secret from this value when deploying.
-- Copy `.env.example` to `.env` and set `GITLAB_GROUP` and `GITLAB_PROJECT`.
-- These values are consumed by the Helm chart in `charts/todo-app`.
+- Copy `.env.example` to `.env` and set `GITLAB_URL`, `GITLAB_GROUP`, and `GITLAB_PROJECT`.
+- These values are consumed by the Helm chart in `charts/todo-app` and to define the Argo CD repository URL.
 
 ### Installing tools on macOS
 
 ```bash
-brew install kubectl helm
+brew install kubectl helm argocd
 ```
 
 ## Deploying with Helm
@@ -36,6 +38,46 @@ brew install kubectl helm
 
 The Helm chart deploys PostgreSQL, Grafana Loki, and Falco alongside the TODO application.
 Once installation completes, the TODO UI will be reachable via the `todo-client` service.
+
+## Deploying with Argo CD
+
+Argo CD can continuously manage the Helm release using a GitOps workflow. After installing Argo CD:
+
+1. **Add the repository**
+   ```bash
+   REPO_URL="$GITLAB_URL/$GITLAB_GROUP/$GITLAB_PROJECT.git"
+   argocd repo add "$REPO_URL"
+   ```
+
+2. **Create an Application** pointing at the chart:
+   ```bash
+   cat <<'EOF' | kubectl apply -f -
+   apiVersion: argoproj.io/v1alpha1
+   kind: Application
+   metadata:
+     name: todo
+     namespace: argocd
+   spec:
+     project: default
+     source:
+       repoURL: $GITLAB_URL/$GITLAB_GROUP/$GITLAB_PROJECT.git
+       path: charts/todo-app
+       targetRevision: HEAD
+       helm:
+         values: |
+           gitlab:
+             group: "$GITLAB_GROUP"
+             project: "$GITLAB_PROJECT"
+           pgPassword: "$POSTGRES_PASSWORD"
+     destination:
+       server: https://kubernetes.default.svc
+       namespace: todo
+     syncPolicy:
+       automated: {}
+   EOF
+   ```
+
+Argo CD will install the chart and keep it synchronized with Git.
 
 ## Accessing Services Locally
 
