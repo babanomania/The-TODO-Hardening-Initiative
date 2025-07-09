@@ -189,9 +189,9 @@ conftest:
     - chmod +x /usr/local/bin/conftest
     - conftest --version
   script:
-    - conftest test k8s --output json --policy policy --no-color > conftest-report.json
     - echo "Conftest Summary:"
-    - jq ".[] | select(.failures != null) | {file: .filename, failures: (.failures | length)}" conftest-report.json
+    - conftest test k8s
+    - conftest test k8s --output json --policy policy --no-color > conftest-report.json
     - |
       if [ "$(jq '[.[] | select(.failures != null)] | length' conftest-report.json)" -gt 0 ]; then
         echo "Conftest policy violations found!"
