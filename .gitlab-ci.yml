@@ -162,17 +162,22 @@ npm-dependency-scan:
 
 checkov:
   stage: policy
-  image: bridgecrew/checkov
-  entrypoint: [""]
+  image: python:3.10-slim
+  before_script:
+    - pip install checkov
   script:
-    - checkov -d k8s --quiet
+    - checkov -d k8s --quiet -o json --output-file-path checkov-report.json
+    - echo "📊 Checkov Summary:"
+    - jq '.summary' checkov-report.json
+  artifacts:
+    paths:
+      - checkov-report.json
   only:
     - main
 
 conftest:
   stage: policy
   image: openpolicyagent/conftest
-  entrypoint: [""]
   script:
     - conftest test k8s
   only:
