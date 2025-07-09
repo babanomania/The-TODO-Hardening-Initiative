@@ -31,12 +31,23 @@ brew install kubectl helm argocd
    ```bash
    kubectl create namespace todo || true
    ```
-2. **Install the chart**
+2. **Provide registry credentials**
+   Set environment variables so Helm can create the pull secret automatically:
+   ```bash
+   export GITLAB_USERNAME=<your-username>
+   export GITLAB_TOKEN=<personal-access-token>
+   export GITLAB_EMAIL=<you@example.com>
+   ```
+
+3. **Install the chart**
    ```bash
    helm upgrade --install todo charts/todo-app \
      --namespace todo \
      --set gitlab.group=$GITLAB_GROUP \
      --set gitlab.project=$GITLAB_PROJECT \
+     --set gitlab.username=$GITLAB_USERNAME \
+     --set gitlab.token=$GITLAB_TOKEN \
+     --set gitlab.email=$GITLAB_EMAIL \
      --set pgPassword=$POSTGRES_PASSWORD
    ```
 
