@@ -17,6 +17,8 @@ It assumes you already have container images built and signed in the GitLab regi
 - Export `POSTGRES_PASSWORD` in your shell. Helm will create the `pg-password`
   Kubernetes Secret from this value when deploying.
 - Copy `.env.example` to `.env` and set `GITLAB_URL`, `GITLAB_GROUP`, and `GITLAB_PROJECT`.
+- Set `GITLAB_USERNAME` and `GITLAB_TOKEN` for GitLab authentication when adding
+  the repository to Argo CD.
 - These values are consumed by the Helm chart in `charts/todo-app` and to define the Argo CD repository URL.
 
 ### Installing tools on macOS
@@ -34,9 +36,7 @@ brew install kubectl helm argocd
 2. **Provide registry credentials**
    Set environment variables so Helm can create the pull secret automatically:
    ```bash
-   export GITLAB_USERNAME=<your-username>
-   export GITLAB_TOKEN=<personal-access-token>
-   export GITLAB_EMAIL=<you@example.com>
+   source .env
    ```
 
 3. **Install the chart**
@@ -89,7 +89,7 @@ Once installation completes, the TODO UI will be reachable via the `todo-client`
    argocd repo add "$REPO_URL" \
     --username $GITLAB_USERNAME \
     --password $GITLAB_TOKEN \
-    --insecuyre
+    --insecure
    ```
 
 5. **Create an Application** pointing at the chart:
@@ -99,6 +99,22 @@ Once installation completes, the TODO UI will be reachable via the `todo-client`
    ```
 
 Argo CD will install the chart and keep it synchronized with Git.
+
+### Checking the deployment in the Argo CD UI
+
+Forward the Argo CD server service locally and log in to verify the release:
+
+```bash
+kubectl -n argocd port-forward svc/argocd-server 8082:443
+argocd login localhost:8082 --username admin \
+  --password $(kubectl -n argocd get secret argocd-initial-admin-secret \
+    -o jsonpath="{.data.password}" | base64 -d) --insecure
+
+Fetch the initial admin password and open the web UI:
+
+```bash
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
+```
 
 Navigate to <https://localhost:8082>, sign in as `admin` with the retrieved
 password, and confirm the `todo` application reports a **Synced** and
