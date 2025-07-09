@@ -127,10 +127,7 @@ maven-dependency-scan:
   image: maven:3.9-eclipse-temurin-17
   script:
     - apt-get update && apt-get install -y jq
-    - mvn -f todo-api/pom.xml -B org.owasp:dependency-check-maven:check \
-        -Dformat=JSON \
-        -DoutputDirectory=odc-maven \
-        -Dnvd.api.key=$NVD_API_KEY
+    - mvn -f todo-api/pom.xml -B org.owasp:dependency-check-maven:check -Dformat=JSON -DoutputDirectory=odc-maven -Dnvd.api.key=$NVD_API_KEY
 
     # Print summary
     - echo "OWASP Dependency-Check (Maven) summary:"
@@ -166,6 +163,7 @@ npm-dependency-scan:
 checkov:
   stage: policy
   image: bridgecrew/checkov
+  entrypoint: [""]
   script:
     - checkov -d k8s --quiet
   only:
@@ -174,6 +172,7 @@ checkov:
 conftest:
   stage: policy
   image: openpolicyagent/conftest
+  entrypoint: [""]
   script:
     - conftest test k8s
   only:
