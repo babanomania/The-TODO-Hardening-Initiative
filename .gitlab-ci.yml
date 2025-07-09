@@ -191,7 +191,14 @@ conftest:
   script:
     - conftest test k8s --output json --policy policy --no-color > conftest-report.json
     - echo "Conftest Summary:"
-    - jq '.[] | select(.failures != null) | {file: .filename, failures: .failures | length}' conftest-report.json
+    - jq ".[] | select(.failures != null) | {file: .filename, failures: (.failures | length)}" conftest-report.json
+    - |
+      if [ "$(jq '[.[] | select(.failures != null)] | length' conftest-report.json)" -gt 0 ]; then
+        echo "Conftest policy violations found!"
+        exit 1
+      else
+        echo "Conftest passed with no policy violations."
+      fi
   artifacts:
     paths:
       - conftest-report.json
