@@ -1,13 +1,13 @@
 # Deployment Phase Guide
 
-This document explains how to deploy the hardened TODO application using Argo CD.
+This document explains how to deploy the hardened TODO application using **Helm**.
 It assumes you already have container images built and signed in the GitLab registry.
 
 ## Prerequisites
 
 - Access to a Kubernetes cluster (`kubectl` configured).
-- Argo CD installed on the cluster.
-- The `cosign.pub` key applied as a ConfigMap so Argo CD can verify images.
+- Helm installed on your local system.
+- The `cosign.pub` key applied as a ConfigMap so the init containers can verify images.
 - The Bitnami Sealed Secrets controller installed and the `kubeseal` CLI
   available.
   This is required for `pg-password-sealed.yaml`.
@@ -17,24 +17,22 @@ It assumes you already have container images built and signed in the GitLab regi
 ### Installing tools on macOS
 
 ```bash
-brew install kubectl argocd
+brew install kubectl helm
 ```
 
-## Deploying with Argo CD
+## Deploying with Helm
 
-1. **Create the Argo CD namespace and install the controller**
+1. **Create the target namespace**
    ```bash
-   kubectl create namespace argocd
-   kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+   kubectl create namespace todo || true
    ```
-2. **Create the Argo CD Application**
+2. **Install the chart**
    ```bash
-   envsubst < k8s/argo-app.yaml | kubectl apply -f -
-   ```
-3. **Sync the application**
-   ```bash
-   argocd app sync todo-app
+   helm upgrade --install todo charts/todo-app \
+     --namespace todo \
+     --set gitlab.group=$GITLAB_GROUP \
+     --set gitlab.project=$GITLAB_PROJECT
    ```
 
-Argo CD verifies each image with `cosign verify` before deployment.
-Once the application is synced, the TODO UI will be reachable via the `todo-client` service.
+The Helm chart deploys PostgreSQL, Grafana Loki, and Falco alongside the TODO application.
+Once installation completes, the TODO UI will be reachable via the `todo-client` service.
