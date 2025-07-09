@@ -55,7 +55,8 @@ This project assumes you’ve heard about supply chain attacks. Here, you’ll b
 ### Secrets Management
 
 * Secrets are removed from application code and environment variables.
-* Encrypted secrets are managed using **Bitnami Sealed Secrets** or **HashiCorp Vault**.
+* Secrets are stored in Kubernetes Secrets and can optionally be encrypted using
+  tools like **Sealed Secrets** or managed with **HashiCorp Vault**.
 * GitOps deployments reference decrypted versions at runtime via Kubernetes controllers.
 
 ### Infrastructure-as-Code (IaC) Security Enforcement
