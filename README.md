@@ -40,6 +40,11 @@ This project assumes you’ve heard about supply chain attacks. Here, you’ll b
 * npm packages are audited with `npm audit` to detect published advisories.
 * CI pipelines are configured to fail if critical vulnerabilities are found.
 
+### Static Application Security Testing (SAST)
+
+* Application code is scanned with **Semgrep** during the CI pipeline.
+* Results are exported in the GitLab SAST report format.
+
 ### Container Image Signing and Verification
 
 * All Podman-built images are signed using **Cosign**.
@@ -102,6 +107,7 @@ This project assumes you’ve heard about supply chain attacks. Here, you’ll b
 | --------------------------------- | ------------------------------- |
 | SBOM generation                   | Syft                            |
 | Vulnerability scanning            | Grype, OWASP Dependency-Check   |
+| Static application security testing | Semgrep                        |
 | Image signing & attestation       | Cosign, Rekor                   |
 | CI/CD provenance tracking         | GitLab CI + SLSA principles     |
 | Secrets management                | Vault, Sealed Secrets           |
