@@ -33,15 +33,10 @@ brew install kubectl helm argocd
    ```bash
    kubectl create namespace todo || true
    ```
-2. **Create registry credentials**
+2. **Provide registry credentials**
+   Set environment variables so Helm can create the pull secret automatically:
    ```bash
-  kubectl create secret docker-registry gitlab-regcred \
-    --namespace todo \
-    --docker-server=registry.gitlab.com \
-    --docker-username=$GITLAB_USERNAME \
-    --docker-password=$GITLAB_TOKEN \
-    --docker-email=you@example.com
-   # The name must match `.Values.gitlab.imagePullSecret` in values.yaml
+   source .env
    ```
 
 3. **Install the chart**
@@ -50,6 +45,9 @@ brew install kubectl helm argocd
      --namespace todo \
      --set gitlab.group=$GITLAB_GROUP \
      --set gitlab.project=$GITLAB_PROJECT \
+     --set gitlab.username=$GITLAB_USERNAME \
+     --set gitlab.token=$GITLAB_TOKEN \
+     --set gitlab.email=$GITLAB_EMAIL \
      --set pgPassword=$POSTGRES_PASSWORD
    ```
 

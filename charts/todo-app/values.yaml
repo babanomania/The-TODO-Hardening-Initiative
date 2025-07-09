@@ -3,4 +3,7 @@ gitlab:
   group: REPLACE_GROUP
   project: REPLACE_PROJECT
   imagePullSecret: gitlab-regcred
+  username: ""
+  token: ""
+  email: ""
 pgPassword: ""
