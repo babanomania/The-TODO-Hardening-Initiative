@@ -62,28 +62,3 @@ glab ci status                   # list jobs with their status
 
 After diagnosing the failure, fix the underlying issue, commit your changes and
 push again to trigger a new pipeline.
-
-## Common Job Failures
-
-The pipeline uses SBOM comparison to detect unexpected dependencies. If the `sbom-check` job fails, regenerate SBOMs and inspect the differences:
-
-```bash
-# generate new SBOMs
-syft todo-client -o syft-text > sboms/sbom-client.new.txt
-syft todo-api -o syft-text > sboms/sbom-api.new.txt
-
-# compare with committed versions
-diff -u sboms/sbom-client.txt sboms/sbom-client.new.txt || true
-diff -u sboms/sbom-api.txt sboms/sbom-api.new.txt || true
-```
-
-If the new SBOMs include legitimate changes, replace the old versions and commit them:
-
-```bash
-mv sboms/sbom-client.new.txt sboms/sbom-client.txt
-mv sboms/sbom-api.new.txt sboms/sbom-api.txt
-git add sboms/sbom-client.txt sboms/sbom-api.txt
-git commit -m "Update SBOMs after dependency changes"
-```
-
-Run `glab ci run` or push your branch again to start a new pipeline.
