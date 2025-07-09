@@ -45,57 +45,49 @@ Once installation completes, the TODO UI will be reachable via the `todo-client`
 
 ## Deploying with Argo CD
 
-Argo CD can continuously manage the Helm release using a GitOps workflow. After installing Argo CD:
+1. **Accessing ArgoCD UI locally**
 
-1. **Add the repository**
+    Forward the Argo CD server service locally and log in to verify the release:
+
+    ```bash
+    kubectl -n argocd port-forward svc/argocd-server 8082:443
+    ```
+
+2. **Fetch Admin Password**
+
+    Fetch the initial admin password and open the web UI:
+
+    ```bash
+    kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
+    ```
+
+3. **Login to ArgoCD CLI**
+
+    ```bash
+    argocd login localhost:8080 \
+      --username admin \
+      --password <ARGOCD_ADMIN_PASSWORD> \
+      --insecure
+    ```
+
+    Navigate to <https://localhost:8082>, sign in as `admin` with the retrieved password
+
+4. **Add the Gitlab repository**
    ```bash
    REPO_URL="$GITLAB_URL/$GITLAB_GROUP/$GITLAB_PROJECT.git"
-   argocd repo add "$REPO_URL"
+   argocd repo add "$REPO_URL" \
+    --username $GITLAB_USERNAME \
+    --password $GITLAB_TOKEN \
+    --insecuyre
    ```
 
-2. **Create an Application** pointing at the chart:
+5. **Create an Application** pointing at the chart:
    ```bash
-   cat <<'EOF' | kubectl apply -f -
-   apiVersion: argoproj.io/v1alpha1
-   kind: Application
-   metadata:
-     name: todo
-     namespace: argocd
-   spec:
-     project: default
-     source:
-       repoURL: $GITLAB_URL/$GITLAB_GROUP/$GITLAB_PROJECT.git
-       path: charts/todo-app
-       targetRevision: HEAD
-       helm:
-         values: |
-           gitlab:
-             group: "$GITLAB_GROUP"
-             project: "$GITLAB_PROJECT"
-           pgPassword: "$POSTGRES_PASSWORD"
-     destination:
-       server: https://kubernetes.default.svc
-       namespace: todo
-     syncPolicy:
-       automated: {}
-   EOF
+   source .env
+   envsubst < argo-app.yaml | kubectl apply -f -
    ```
 
 Argo CD will install the chart and keep it synchronized with Git.
-
-### Checking the deployment in the Argo CD UI
-
-Forward the Argo CD server service locally and log in to verify the release:
-
-```bash
-kubectl -n argocd port-forward svc/argocd-server 8082:443
-```
-
-Fetch the initial admin password and open the web UI:
-
-```bash
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
-```
 
 Navigate to <https://localhost:8082>, sign in as `admin` with the retrieved
 password, and confirm the `todo` application reports a **Synced** and
