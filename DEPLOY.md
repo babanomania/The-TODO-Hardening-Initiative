@@ -7,7 +7,7 @@ It assumes you already have container images built and signed in the GitLab regi
 
 - Access to a Kubernetes cluster (`kubectl` configured).
 - Helm installed on your local system.
-- The `cosign.pub` key applied as a ConfigMap so the init containers can verify images.
+- The chart automatically embeds the `cosign.pub` key from the repository's `cosign` directory as the `cosign-public-key` ConfigMap so the init containers can verify images.
 - Export `POSTGRES_PASSWORD` in your shell. Helm will create the `pg-password`
   Kubernetes Secret from this value when deploying.
 - Copy `.env.example` to `.env` and set `GITLAB_GROUP` and `GITLAB_PROJECT`.
