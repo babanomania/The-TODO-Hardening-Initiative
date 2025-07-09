@@ -4,7 +4,6 @@ stages:
   - scan
   - policy
   - sign
-  - deploy
 
 variables:
   REGISTRY: $GITLAB_REGISTRY/$CI_PROJECT_PATH
@@ -164,6 +163,22 @@ npm-dependency-scan:
   only:
     - main
 
+checkov:
+  stage: policy
+  image: bridgecrew/checkov
+  script:
+    - checkov -d k8s --quiet
+  only:
+    - main
+
+conftest:
+  stage: policy
+  image: openpolicyagent/conftest
+  script:
+    - conftest test k8s
+  only:
+    - main
+
 sign:
   stage: sign
   image: docker:latest
@@ -187,34 +202,5 @@ sign:
       - cosign.pub
   dependencies:
     - build
-  only:
-    - main
-
-checkov:
-  stage: policy
-  image: bridgecrew/checkov
-  script:
-    - checkov -d k8s --quiet
-  only:
-    - main
-
-conftest:
-  stage: policy
-  image: openpolicyagent/conftest
-  script:
-    - conftest test k8s
-  only:
-    - main
-
-deploy:
-  stage: deploy
-  script:
-    - git config user.email "ci@example.com"
-    - git config user.name "CI Bot"
-    - git checkout $CI_COMMIT_BRANCH
-    - sed -i "s|REPLACE_GROUP/REPLACE_PROJECT|$CI_PROJECT_PATH|g" k8s/*.yaml
-    - git add k8s/
-    - git commit -m "Update k8s manifests" || true
-    - git push
   only:
     - main
