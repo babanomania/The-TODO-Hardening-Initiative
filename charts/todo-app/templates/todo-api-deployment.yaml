@@ -11,6 +11,8 @@ spec:
       labels:
         app: todo-api
     spec:
+      imagePullSecrets:
+        - name: {{ .Values.gitlab.imagePullSecret }}
       initContainers:
         - name: verify-image
           image: gcr.io/projectsigstore/cosign:v2.2.0

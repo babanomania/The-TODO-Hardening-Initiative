@@ -31,7 +31,18 @@ brew install kubectl helm argocd
    ```bash
    kubectl create namespace todo || true
    ```
-2. **Install the chart**
+2. **Create registry credentials**
+   ```bash
+  kubectl create secret docker-registry gitlab-regcred \
+    --namespace todo \
+    --docker-server=registry.gitlab.com \
+    --docker-username=$GITLAB_USERNAME \
+    --docker-password=$GITLAB_TOKEN \
+    --docker-email=you@example.com
+   # The name must match `.Values.gitlab.imagePullSecret` in values.yaml
+   ```
+
+3. **Install the chart**
    ```bash
    helm upgrade --install todo charts/todo-app \
      --namespace todo \

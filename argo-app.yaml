@@ -14,6 +14,7 @@ spec:
         gitlab:
           group: "$GITLAB_GROUP"
           project: "$GITLAB_PROJECT"
+          imagePullSecret: gitlab-regcred
         pgPassword: "$POSTGRES_PASSWORD"
   destination:
     server: https://kubernetes.default.svc
