@@ -15,7 +15,7 @@ This project assumes you’ve heard about supply chain attacks. Here, you’ll b
 * Database: PostgreSQL
 * Containerization: Podman
 * CI/CD: GitLab CI + GitLab CLI
-* Deployment: Kubernetes via Helm
+* Deployment: Kubernetes via Helm and Argo CD
 
 **Project Goals**:
 
@@ -23,7 +23,7 @@ This project assumes you’ve heard about supply chain attacks. Here, you’ll b
 * Apply secure-by-design practices using only open-source tools.
 * Transition from trust-based to verifiable software delivery.
 * Teach real-world DevSecOps concepts through hands-on implementation.
- The lifecycle is split into a **build phase** handled by GitLab CI and a **deploy phase** driven by Helm. The build phase produces signed and scanned container images and Helm installs them after signature verification.
+ The lifecycle is split into a **build phase** handled by GitLab CI and a **deploy phase** driven by Helm. Argo CD reconciles the Helm release with Git so only the signed and scanned images are deployed.
 
 
 ## Hardening Features Implemented
@@ -114,7 +114,7 @@ This project assumes you’ve heard about supply chain attacks. Here, you’ll b
 | IaC hardening                     | Checkov, Conftest (OPA)         |
 | Runtime behavior detection        | Falco                           |
 | Observability & incident handling | Loki, Promtail, Grafana         |
-| Secure deployment                 | Helm + signature verification |
+| Secure deployment                 | Helm + Argo CD + signature verification |
 
 ## Getting Started
 For build instructions see [BUILD.md](./BUILD.md). Deployment steps are covered in [DEPLOY.md](./DEPLOY.md).
