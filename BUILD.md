@@ -6,7 +6,7 @@ It assumes you are working on macOS and using Homebrew for tool installation.
 ## Prerequisites
 
 - A GitLab Personal Access Token (`GITLAB_TOKEN`) with `api` and `write_repository` scopes.
-- An NVD API key for OWASP Dependency‑Check. Save it as `NVD_API_KEY` in GitLab CI variables or your shell environment.
+- An NVD API key for OWASP Dependency‑Check. Create it under **Settings → CI/CD → Variables** in your GitLab project as `NVD_API_KEY`.
 - Homebrew packages:
   ```bash
   brew install podman glab syft grype cosign
@@ -40,3 +40,25 @@ You can also push this repository to GitLab.com and use GitLab Cloud runners.
    the `NVD_API_KEY`.
 
 With these steps complete, the build artifacts will be available in the GitLab registry.
+
+## Handling Build Failures
+
+If a pipeline fails, review the output for **every job** in the GitLab UI so you
+can determine exactly which step failed and why:
+
+1. Navigate to your project on GitLab.
+2. Open **CI/CD → Pipelines** and select the failed pipeline.
+3. The pipeline graph shows each job. Failed jobs are highlighted in red.
+4. Click a job name to open its log. Expand each script section to inspect the
+   commands that ran and any error messages.
+
+You can check the logs from your terminal as well using the `glab` CLI:
+
+```bash
+glab ci view --web               # open pipeline details in a browser
+glab ci view --job <job-id>      # stream the log for a single job
+glab ci status                   # list jobs with their status
+```
+
+After diagnosing the failure, fix the underlying issue, commit your changes and
+push again to trigger a new pipeline.
