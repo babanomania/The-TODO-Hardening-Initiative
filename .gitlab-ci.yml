@@ -122,13 +122,24 @@ scan:
   only:
     - main
 
-
 maven-dependency-scan:
   stage: scan
   allow_failure: true
   image: maven:3.9-eclipse-temurin-17
   script:
-    - mvn -f todo-api/pom.xml -B org.owasp:dependency-check-maven:check -Dformat=JSON -DoutputDirectory=odc-maven
+    - apt-get update && apt-get install -y jq
+    - mvn -f todo-api/pom.xml -B org.owasp:dependency-check-maven:check \
+        -Dformat=JSON \
+        -DoutputDirectory=odc-maven \
+        -Dnvd.api.key=$NVD_API_KEY
+
+    # Print summary
+    - echo "OWASP Dependency-Check (Maven) summary:"
+    - if [ -f odc-maven/dependency-check-report.json ]; then
+        jq '.dependencies[].vulnerabilities[]? | .severity' odc-maven/dependency-check-report.json | sort | uniq -c;
+      else
+        echo "No report found. Skipping summary.";
+      fi
   artifacts:
     paths:
       - odc-maven
