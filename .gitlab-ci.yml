@@ -15,7 +15,7 @@ client-tests:
   image: node:18-alpine
   script:
     - cd todo-client
-    - npm ci
+    - npm i
     - npm run test
   only:
     - main
