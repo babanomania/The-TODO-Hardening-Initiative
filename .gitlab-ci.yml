@@ -28,7 +28,6 @@ build:
 
 sbom:
   stage: sbom
-  allow_failure: true
   image: docker:latest
   services:
     - docker:dind
@@ -55,7 +54,6 @@ sbom:
 
 scan:
   stage: scan
-  allow_failure: true
   image: docker:latest
   services:
     - docker:dind
@@ -123,7 +121,6 @@ scan:
 
 maven-dependency-scan:
   stage: scan
-  allow_failure: true
   image: maven:3.9-eclipse-temurin-17
   script:
     - apt-get update && apt-get install -y jq
@@ -146,7 +143,6 @@ maven-dependency-scan:
 
 npm-dependency-scan:
   stage: scan
-  allow_failure: true
   image: node:18-alpine
   script:
     - cd todo-client
@@ -162,7 +158,6 @@ npm-dependency-scan:
 
 checkov:
   stage: policy
-  allow_failure: true
   image: python:3.10-slim
   before_script:
     - pip install checkov
