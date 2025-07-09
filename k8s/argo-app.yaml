@@ -9,7 +9,12 @@ spec:
     repoURL: https://gitlab.com/REPLACE_GROUP/REPLACE_PROJECT.git
     targetRevision: HEAD
     path: charts/todo-app
-    helm: {}
+    helm:
+      parameters:
+        - name: gitlab.group
+          value: REPLACE_GROUP
+        - name: gitlab.project
+          value: REPLACE_PROJECT
   destination:
     server: https://kubernetes.default.svc
     namespace: default

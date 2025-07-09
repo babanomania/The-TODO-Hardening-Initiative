@@ -12,7 +12,7 @@ It assumes you already have container images built and signed in the GitLab regi
   available.
   This is required for `pg-password-sealed.yaml`.
 - Copy `.env.example` to `.env` and set `GITLAB_GROUP` and `GITLAB_PROJECT`.
-- These values are consumed by the Helm chart in `charts/todo-app`.
+- These variables are inserted into `k8s/argo-app.yaml` and passed to the Helm chart in `charts/todo-app`.
 
 ### Installing tools on macOS
 
@@ -27,8 +27,9 @@ brew install kubectl argocd
    kubectl create namespace argocd
    kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
    ```
-2. **Create the Argo CD Application**
+2. **Lint the Helm chart and create the Argo CD Application**
    ```bash
+   helm lint charts/todo-app
    envsubst < k8s/argo-app.yaml | kubectl apply -f -
    ```
 3. **Sync the application**

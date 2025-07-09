@@ -16,6 +16,7 @@ This project assumes you’ve heard about supply chain attacks. Here, you’ll b
 * Containerization: Podman
 * CI/CD: GitLab CI + GitLab CLI
 * GitOps Deployment: Kubernetes via ArgoCD + Helm
+* Kubernetes manifests packaged as a Helm chart under `charts/todo-app`
 
 **Project Goals**:
 
