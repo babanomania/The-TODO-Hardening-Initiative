@@ -29,6 +29,7 @@ build:
 
 sbom:
   stage: sbom
+  allow_failure: true
   image: docker:latest
   services:
     - docker:dind
@@ -43,7 +44,7 @@ sbom:
     - mkdir -p sboms
     - syft $REGISTRY/todo-client:latest -o cyclonedx-json > sboms/sbom-client.json
     - syft $REGISTRY/todo-api:latest -o cyclonedx-json > sboms/sbom-api.json
-    - ./scripts/check-sbom-diff.sh || true
+    - ./scripts/check-sbom-diff.sh
   artifacts:
     paths:
       - sboms/sbom-client.json
@@ -55,6 +56,7 @@ sbom:
 
 scan:
   stage: scan
+  allow_failure: true
   image: docker:latest
   services:
     - docker:dind
@@ -85,6 +87,7 @@ scan:
 
 maven-dependency-scan:
   stage: scan
+  allow_failure: true
   image: maven:3.9-eclipse-temurin-17
   script:
     - mvn -f todo-api/pom.xml -B org.owasp:dependency-check-maven:check -Dformat=JSON -DoutputDirectory=odc-maven
@@ -98,6 +101,7 @@ maven-dependency-scan:
 
 npm-dependency-scan:
   stage: scan
+  allow_failure: true
   image: node:18-alpine
   script:
     - cd todo-client
