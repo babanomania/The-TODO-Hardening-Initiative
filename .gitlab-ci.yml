@@ -2,6 +2,7 @@ stages:
   - build
   - sbom
   - scan
+  - sast
   - policy
   - sign
 
@@ -147,10 +148,24 @@ npm-dependency-scan:
   script:
     - cd todo-client
     - npm install --legacy-peer-deps
-    - npm audit --audit-level=high 
+    - npm audit --audit-level=high
   artifacts:
     paths:
       - npm-audit.json
+  dependencies:
+    - build
+  only:
+    - main
+
+semgrep-sast:
+  stage: sast
+  image: returntocorp/semgrep:latest
+  script:
+    - semgrep --config=auto --json -o gl-sast-report.json todo-client todo-api
+  artifacts:
+    paths:
+      - gl-sast-report.json
+  allow_failure: true
   dependencies:
     - build
   only:
