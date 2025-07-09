@@ -185,9 +185,10 @@ conftest:
     - curl -L https://github.com/open-policy-agent/conftest/releases/latest/download/conftest_Linux_x86_64.tar.gz | tar -xz -C /usr/local/bin
     - conftest --version
   script:
+    - echo "Running Conftest..."
     - conftest test k8s --output json --policy policy --no-color > conftest-report.json
     - echo "Conftest Summary:"
-    - jq '.[] | select(.failures != null) | {file: .filename, failures: .failures | length}' conftest-report.json
+    - "jq '.[] | select(.failures != null) | {file: .filename, failures: .failures | length}' conftest-report.json"
   artifacts:
     paths:
       - conftest-report.json
